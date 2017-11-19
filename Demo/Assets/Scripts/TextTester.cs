@@ -59,7 +59,6 @@ public class TextTester : MonoBehaviour {
 					{
 						testIndex [index] += testIndex [index - 1] + ClickableWords [i].Length + 1;
 						wordIndexes [i] [index] += wordIndexes [i] [index - 1] + ClickableWords [i].Length + 1;
-						print (testIndex [index]);
 					}
 					index++;
 					if (length > 0)
@@ -116,18 +115,18 @@ public class TextTester : MonoBehaviour {
 			}
 		}
 	}
-		
 
 	void Update()
 	{
 		if (Input.GetMouseButtonDown (0)) 
 		{
-			Vector2 clickPosition = Input.mousePosition;
+			Vector2 clickPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
 			for (int i = 0; i < rectangles.Count; i++)
 			{
 				for (int j = 0; j < rectangles [i].Count; j++) 
 				{
+					
 					if (rectangles[i][j].Contains (clickPosition, true)) 
 					{
 						if (i == 1) 
@@ -138,7 +137,7 @@ public class TextTester : MonoBehaviour {
 								int index = textComponent.text.IndexOf(ClickableWords[i]);
 								string newString = textComponent.text.Substring(0, index);
 								newString += replacedWords [i];
-								print (newString);
+							//	print (newString);
 								//newString += textComponent.text.Substring (index + ClickableWords[i].Length, ClickableWords[i].Length + 1);
 								newString += textComponent.text.Substring 
 									(index + ClickableWords[i].Length, 
@@ -150,7 +149,6 @@ public class TextTester : MonoBehaviour {
 
 						}
 						print(ClickableWords[i]);
-					//	print ("gag");
 					}
 				}
 			}
