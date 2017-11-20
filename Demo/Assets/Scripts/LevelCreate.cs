@@ -85,9 +85,9 @@ public class LevelCreate : MonoBehaviour {
 	void BoardSetup ()
 	{
 		level = new GameObject ("Level").transform;
-		//codeLevel = new GameObject ("CodeLevel").transform;
-		//GameObject whatever = Instantiate (code, Vector2.zero, Quaternion.identity);
-		//whatever.transform.SetParent (codeLevel);
+		codeLevel = new GameObject ("CodeLevel").transform;
+		GameObject whatever = Instantiate (code, Vector2.zero, Quaternion.identity);
+		whatever.transform.SetParent (codeLevel);
 		//codeLevel.gameObject.SetActive (false);
 
 

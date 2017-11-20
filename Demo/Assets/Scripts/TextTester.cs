@@ -9,12 +9,15 @@ using UnityEditor;
 
 public class TextTester : MonoBehaviour {
 
-	public Text textComponent; // filled in the inspector or somewhere else
+	public Text textComponent; 
+	public Camera mainCamera;
 
 	public List<string> ClickableWords = new List<string>(); 
 	List<List<Rect>> rectangles = new List<List<Rect>> ();
 	List<List<int>> wordIndexes = new List<List<int>> ();
 
+	Vector2 top;
+	Vector2 bottom;
 
 	public Dictionary<int, string> replacedWords = new Dictionary<int, string> ();
 
@@ -31,6 +34,9 @@ public class TextTester : MonoBehaviour {
 			this.enabled = false;
 			return;
 		}
+
+		mainCamera = Camera.main;
+
 		//generator = textComponent.cachedTextGenerator;
 
 		replacedWords.Add (1, "pi");
@@ -38,64 +44,60 @@ public class TextTester : MonoBehaviour {
 		generator = new TextGenerator (textComponent.text.Length);
 		Vector2 extents = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
 		generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
-		//for (int j = 0; j < ClickableWords.Count; j++) 
+
+		int yeaf = 0;
+		top = textComponent.transform.TransformPoint(new Vector2 (generator.verts [yeaf * 4].position.x, generator.verts [yeaf * 4].position.y));
+		yeaf = textComponent.text.Length - 1;
+		bottom = textComponent.transform.TransformPoint(new Vector2 (generator.verts [yeaf * 4].position.x, generator.verts [yeaf * 4 + 2].position.y));
+
+		print (top);
+		print (bottom);
+
+		//Get indicies of clickable words
+		for (int i = 0; i < ClickableWords.Count; i++) 
 		{
-
-			//Get indicies of clickable words
-			for (int i = 0; i < ClickableWords.Count; i++) 
+			List<int> testIndex = new List<int> ();
+			wordIndexes.Add (new List<int>());
+			string theText = textComponent.text;
+			int index = 0;
+			while (theText.Contains (ClickableWords [i])) 
 			{
-				List<int> testIndex = new List<int> ();
-				wordIndexes.Add (new List<int>());
-				string theText = textComponent.text;
-				int index = 0;
-				while (theText.Contains (ClickableWords [i])) 
+				testIndex.Add (theText.IndexOf (ClickableWords [i]));
+				wordIndexes [i].Add (theText.IndexOf (ClickableWords [i]));
+				int offset = testIndex [index] + ClickableWords [i].Length + 1;
+				int length = theText.Length - offset;
+
+				if (index > 0) 
 				{
-					testIndex.Add (theText.IndexOf (ClickableWords [i]));
-					wordIndexes [i].Add (theText.IndexOf (ClickableWords [i]));
-					int offset = testIndex [index] + ClickableWords [i].Length + 1;
-					int length = theText.Length - offset;
-
-					if (index > 0) 
-					{
-						testIndex [index] += testIndex [index - 1] + ClickableWords [i].Length + 1;
-						wordIndexes [i] [index] += wordIndexes [i] [index - 1] + ClickableWords [i].Length + 1;
-					}
-					index++;
-					if (length > 0)
-					{
-						theText = theText.Substring (offset, length);
-					} 
-					else 
-					{
-						theText = "";
-					}
+					testIndex [index] += testIndex [index - 1] + ClickableWords [i].Length + 1;
+					wordIndexes [i] [index] += wordIndexes [i] [index - 1] + ClickableWords [i].Length + 1;
 				}
-				int indexOfTextQuad = 0;
-				rectangles.Add (new List<Rect> ());
-
-				for (int c = 0; c < wordIndexes[i].Count; c++) 
+				index++;
+				if (length > 0)
 				{
-
-					indexOfTextQuad = wordIndexes[i][c];
-					Vector2 upperLeft = new Vector2 (generator.verts [indexOfTextQuad * 4].position.x, generator.verts [indexOfTextQuad * 4].position.y);
-					indexOfTextQuad = (wordIndexes[i][c]) + ClickableWords [i].Length;
-					Vector2 bottomright = new Vector2 (generator.verts [indexOfTextQuad * 4].position.x, generator.verts [indexOfTextQuad * 4 + 2].position.y);
-
-					/*Vector3 avgPos = (generator.verts [indexOfTextQuad].position +
-					                generator.verts [indexOfTextQuad + 1].position +
-					                generator.verts [indexOfTextQuad + 2].position +
-					                generator.verts [indexOfTextQuad + 3].position) / 4f;
-
-					Vector3 worldPos = textComponent.transform.TransformPoint (bottomright);
-					//     worldPos /= canvas.scaleFactor*/
-
-					// Debug.DrawLine(Vector3.zero, new Vector3(1, 0, 0), Color.red);
-					Vector3 uleft = textComponent.transform.TransformPoint (upperLeft);
-					Vector3 bright = textComponent.transform.TransformPoint (bottomright);
-					Vector2 size = bright - uleft;
-					Rect test = new Rect (uleft, size);
-					rectangles [rectangles.Count - 1].Add (test);
+					theText = theText.Substring (offset, length);
+				} 
+				else 
+				{
+					theText = "";
 				}
+			}
+			int indexOfTextQuad = 0;
+			rectangles.Add (new List<Rect> ());
+
+			for (int c = 0; c < wordIndexes[i].Count; c++) 
+			{
+
+				indexOfTextQuad = wordIndexes[i][c];
+				Vector2 upperLeft = new Vector2 (generator.verts [indexOfTextQuad * 4].position.x, generator.verts [indexOfTextQuad * 4].position.y);
+				indexOfTextQuad = (wordIndexes[i][c]) + ClickableWords [i].Length;
+				Vector2 bottomright = new Vector2 (generator.verts [indexOfTextQuad * 4].position.x, generator.verts [indexOfTextQuad * 4 + 2].position.y);
+
+				Vector3 uleft = textComponent.transform.TransformPoint (upperLeft);
+				Vector3 bright = textComponent.transform.TransformPoint (bottomright);
+				Vector2 size = bright - uleft;
+				Rect test = new Rect (uleft, size);
+				rectangles [rectangles.Count - 1].Add (test);
 			}
 		}
 		for (int i = 0; i < rectangles.Count; i++)
@@ -153,6 +155,24 @@ public class TextTester : MonoBehaviour {
 				}
 			}
 		}
+
+		float x = 0;
+		float y = 0;
+
+		if (Input.GetKey ("up") && mainCamera.transform.position.y < top.y) 
+		{
+			y = 1;
+		}
+
+		if (Input.GetKey ("down") && mainCamera.transform.position.y > bottom.y) 
+		{
+			y = -1;
+		}
+		//print (Camera.main.ScreenToWorldPoint(Input.mousePosition));
+		//print (bottom.y);
+
+		mainCamera.transform.Translate(new Vector3(x, y, 0.0f));
+
 			
 	}
 }
