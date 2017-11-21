@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 using UnityEditor;
 
-public class TextTester : MonoBehaviour {
+public class TextTester : MonoBehaviour 
+{
 
 	public Text textComponent; 
 	public Camera mainCamera;
@@ -16,25 +17,24 @@ public class TextTester : MonoBehaviour {
 	List<List<Rect>> rectangles = new List<List<Rect>> ();
 	List<List<int>> wordIndexes = new List<List<int>> ();
 
+	public enum State{LOOKING, CORRECT, INCORRECT};
+	public State state;
+
+	//For the top and bottom of a code fragment
 	Vector2 top;
 	Vector2 bottom;
 
 	public Dictionary<int, string> replacedWords = new Dictionary<int, string> ();
 
 	private TextGenerator generator;
+	private void OnEnable()
+	{
+		state = State.LOOKING;
+	}
 	private void Start() 
 	{
-		if (textComponent == null) 
-		{
-			textComponent = GetComponent<Text> ();
-		}
-		if (textComponent == null)
-		{
-			Debug.LogError("textComponent was not specified");
-			this.enabled = false;
-			return;
-		}
-
+		state = State.LOOKING;
+		textComponent = GetComponent<Text> ();
 		mainCamera = Camera.main;
 
 		//generator = textComponent.cachedTextGenerator;
@@ -45,10 +45,10 @@ public class TextTester : MonoBehaviour {
 		Vector2 extents = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
 		generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
 
-		int yeaf = 0;
-		top = textComponent.transform.TransformPoint(new Vector2 (generator.verts [yeaf * 4].position.x, generator.verts [yeaf * 4].position.y));
-		yeaf = textComponent.text.Length - 1;
-		bottom = textComponent.transform.TransformPoint(new Vector2 (generator.verts [yeaf * 4].position.x, generator.verts [yeaf * 4 + 2].position.y));
+		int characterIndex = 0;
+		top = textComponent.transform.TransformPoint(new Vector2 (generator.verts [characterIndex * 4].position.x, generator.verts [characterIndex * 4].position.y));
+		characterIndex = textComponent.text.Length - 1;
+		bottom = textComponent.transform.TransformPoint(new Vector2 (generator.verts [characterIndex * 4].position.x, generator.verts [characterIndex * 4 + 2].position.y));
 
 		print (top);
 		print (bottom);
@@ -120,59 +120,64 @@ public class TextTester : MonoBehaviour {
 
 	void Update()
 	{
-		if (Input.GetMouseButtonDown (0)) 
+		if (state == State.LOOKING) 
 		{
-			Vector2 clickPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-			for (int i = 0; i < rectangles.Count; i++)
+			if (Input.GetMouseButtonDown (0)) 
 			{
-				for (int j = 0; j < rectangles [i].Count; j++) 
+				Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+
+				for (int i = 0; i < rectangles.Count; i++) 
 				{
-					
-					if (rectangles[i][j].Contains (clickPosition, true)) 
+					for (int j = 0; j < rectangles [i].Count; j++) 
 					{
-						if (i == 1) 
+						if (rectangles [i] [j].Contains (clickPosition, true)) 
 						{
-							for (int c = 0; c < wordIndexes [i].Count; c++)
+							if (i == 1) //temp
 							{
-								//int index = wordIndexes [i] [c];//use index list
-								int index = textComponent.text.IndexOf(ClickableWords[i]);
-								string newString = textComponent.text.Substring(0, index);
-								newString += replacedWords [i];
-							//	print (newString);
-								//newString += textComponent.text.Substring (index + ClickableWords[i].Length, ClickableWords[i].Length + 1);
-								newString += textComponent.text.Substring 
-									(index + ClickableWords[i].Length, 
-										textComponent.text.Length - 
-										(newString.Length + (ClickableWords[i].Length - replacedWords[i].Length)));
+								print (ClickableWords [i]);
+								for (int c = 0; c < wordIndexes [i].Count; c++) 
+								{
+									int index = textComponent.text.IndexOf (ClickableWords [i]);
+									string newString = textComponent.text.Substring (0, index);
+									newString += replacedWords [i];
+									newString += textComponent.text.Substring 
+									(index + ClickableWords [i].Length, 
+										textComponent.text.Length -
+										(newString.Length + (ClickableWords [i].Length - replacedWords [i].Length)));
 
-								textComponent.text = newString;
+									textComponent.text = newString;
+								}
+						
+								state = State.CORRECT;
+								break;
+							} 
+							else
+							{
+								state = State.INCORRECT;
+								break;
 							}
-
 						}
-						print(ClickableWords[i]);
 					}
 				}
+				print (state);
+
 			}
+
+			float x = 0;
+			float y = 0;
+
+			if (Input.GetKey ("up") && mainCamera.transform.position.y < top.y) 
+			{
+				y = 1;
+			}
+
+			if (Input.GetKey ("down") && mainCamera.transform.position.y > bottom.y)
+			{
+				y = -1;
+			}
+
+			mainCamera.transform.Translate (new Vector3 (x, y, 0.0f));
+
 		}
-
-		float x = 0;
-		float y = 0;
-
-		if (Input.GetKey ("up") && mainCamera.transform.position.y < top.y) 
-		{
-			y = 1;
-		}
-
-		if (Input.GetKey ("down") && mainCamera.transform.position.y > bottom.y) 
-		{
-			y = -1;
-		}
-		//print (Camera.main.ScreenToWorldPoint(Input.mousePosition));
-		//print (bottom.y);
-
-		mainCamera.transform.Translate(new Vector3(x, y, 0.0f));
-
-			
 	}
 }

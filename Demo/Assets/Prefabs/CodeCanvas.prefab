@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114906177304114772}
   - component: {fileID: 114810754019141798}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Code
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -158,6 +158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textComponent: {fileID: 0}
+  mainCamera: {fileID: 0}
   ClickableWords:
   - 2
   - 3.14
