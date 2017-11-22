@@ -17,7 +17,7 @@ public class TextTester : MonoBehaviour
 	List<List<Rect>> rectangles = new List<List<Rect>> ();
 	List<List<int>> wordIndexes = new List<List<int>> ();
 
-	public enum State{LOOKING, CORRECT, INCORRECT};
+	public enum State{LOOKING, SELECTING, CORRECT, INCORRECT};
 	public State state;
 
 	//For the top and bottom of a code fragment
@@ -29,11 +29,11 @@ public class TextTester : MonoBehaviour
 	private TextGenerator generator;
 	private void OnEnable()
 	{
-		state = State.LOOKING;
+		//state = State.SELECTING;
 	}
 	private void Start() 
 	{
-		state = State.LOOKING;
+		state = State.SELECTING;
 		textComponent = GetComponent<Text> ();
 		mainCamera = Camera.main;
 
@@ -120,23 +120,23 @@ public class TextTester : MonoBehaviour
 
 	void Update()
 	{
-		if (state == State.LOOKING) 
+		//if (state == State.SELECTING) 
+		switch(state)
 		{
-			if (Input.GetMouseButtonDown (0)) 
-			{
+
+
+
+		case State.SELECTING:
+			
+			if (Input.GetMouseButtonDown (0)) {
 				Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 
-				for (int i = 0; i < rectangles.Count; i++) 
-				{
-					for (int j = 0; j < rectangles [i].Count; j++) 
-					{
-						if (rectangles [i] [j].Contains (clickPosition, true)) 
-						{
-							if (i == 1) //temp
-							{
+				for (int i = 0; i < rectangles.Count; i++) {
+					for (int j = 0; j < rectangles [i].Count; j++) {
+						if (rectangles [i] [j].Contains (clickPosition, true)) {
+							if (i == 1) { //temp
 								print (ClickableWords [i]);
-								for (int c = 0; c < wordIndexes [i].Count; c++) 
-								{
+								for (int c = 0; c < wordIndexes [i].Count; c++) {
 									int index = textComponent.text.IndexOf (ClickableWords [i]);
 									string newString = textComponent.text.Substring (0, index);
 									newString += replacedWords [i];
@@ -150,9 +150,7 @@ public class TextTester : MonoBehaviour
 						
 								state = State.CORRECT;
 								break;
-							} 
-							else
-							{
+							} else {
 								state = State.INCORRECT;
 								break;
 							}
@@ -162,7 +160,9 @@ public class TextTester : MonoBehaviour
 				print (state);
 
 			}
+			goto case State.LOOKING;
 
+		case State.LOOKING:
 			float x = 0;
 			float y = 0;
 
@@ -171,13 +171,13 @@ public class TextTester : MonoBehaviour
 				y = 1;
 			}
 
-			if (Input.GetKey ("down") && mainCamera.transform.position.y > bottom.y)
+			if (Input.GetKey ("down") && mainCamera.transform.position.y > bottom.y) 
 			{
 				y = -1;
 			}
 
 			mainCamera.transform.Translate (new Vector3 (x, y, 0.0f));
-
+			break;
 		}
 	}
 }

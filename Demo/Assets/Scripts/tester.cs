@@ -53,16 +53,26 @@ public class tester : MonoBehaviour {
 		{
 			if (Input.GetKeyDown ("q")) 
 			{
-				if (player.door != null && player.hasKey) // make this nicer later
+				if (player.door != null)
 				{ 
+
 					door = player.door;
 					switchMode ();
+					if (player.hasKey) 
+					{
+						codeObject.state = TextTester.State.SELECTING;
+					} 
+					else 
+					{
+						codeObject.state = TextTester.State.LOOKING;
+
+					}
 				}
 			}
 		} 
 		else 
 		{
-			if (codeObject.state != TextTester.State.LOOKING)
+			if (codeObject.state != TextTester.State.SELECTING && codeObject.state != TextTester.State.LOOKING)
 			{
 				transitionTimer += Time.deltaTime;
 				//appropriate messages will be handled by code class
