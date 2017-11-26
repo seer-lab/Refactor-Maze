@@ -1,0 +1,43 @@
+<stuff>
+<code>
+float getCircleCircumference (float radius)
+{
+    return <r1 t="0">3.14</r1> * radius * <r1>2</r1>;
+}
+
+float getCircleArea(float radius)
+{
+    return <r1 t="0">3.14</r1> * pow(radius, <r1>2</r1>);
+}
+
+float getSphereVolume(float radius)
+{
+    return (4 * <r1 t="0">3.14</r1> * pow(radius, 3))/3;
+}
+
+float getSphereSurfaceArea(float radius)
+{
+    return 4 * <r1 t="0">3.14</r1> * pow(radius, <r1>2</r1>);
+} 
+</code>
+<correctcode>
+float getCircleCircumference (float radius)
+{
+    return pi * radius * 2;
+}
+
+float getCircleArea(float radius)
+{
+    return pi * pow(radius, 2);
+}
+
+float getSphereVolume(float radius)
+{
+    return (4 * pi * pow(radius, 3))/3;
+}
+
+float getSphereSurfaceArea(float radius)
+{
+    return 4 * pi * pow(radius, 2);
+} </correctcode>
+</stuff>

@@ -162,6 +162,7 @@ MonoBehaviour:
   ClickableWords:
   - 2
   - 3.14
+  state: 0
 --- !u!114 &114906177304114772
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -194,11 +195,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "float getCircleCircumference (float radius)\r\n{\r\n    return 3.14 * radius
-    * 2;\r\n}\r\n\r\nfloat getCircleArea(float radius)\r\n{\r\n    return 3.14 * pow(radius,
-    2);\r\n}\r\n\r\nfloat getSphereVolume(float radius)\r\n{\r\n    return (4 * 3.14
-    * pow(radius, 3))/3;\r\n}\r\n\r\nfloat getSphereSurfaceArea(float radius)\r\n{\r\n
-    \   return 4 * 3.14 * pow(radius, 2);\r\n}"
+  m_Text: 
 --- !u!222 &222178538609718506
 CanvasRenderer:
   m_ObjectHideFlags: 1

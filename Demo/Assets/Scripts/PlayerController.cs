@@ -17,9 +17,7 @@ public class PlayerController : MonoBehaviour {
 
 	public bool hasKey; //Probably want some type of list later
 
-	public LevelCreate level;
 	public LayerMask blockingLayer;
-
 
 	// Use this for initialization
 	void Start () 

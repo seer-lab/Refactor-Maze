@@ -57,6 +57,8 @@
      <Compile Include="Assets\Scripts\SmellScript.cs" />
      <Compile Include="Assets\Scripts\tester.cs" />
      <Compile Include="Assets\Scripts\TextTester.cs" />
+     <None Include="Assets\Scripts\test.xml" />
+     <None Include="Assets\Scripts\test2.xml" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

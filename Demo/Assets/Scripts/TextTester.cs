@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 using UnityEditor;
+using System.Xml;
 
 public class TextTester : MonoBehaviour 
 {
@@ -14,96 +15,76 @@ public class TextTester : MonoBehaviour
 	public Camera mainCamera;
 
 	public List<string> ClickableWords = new List<string>(); 
-	List<List<Rect>> rectangles = new List<List<Rect>> ();
 	List<List<int>> wordIndexes = new List<List<int>> ();
 
 	public enum State{LOOKING, SELECTING, CORRECT, INCORRECT};
 	public State state;
 
 	//For the top and bottom of a code fragment
-	Vector2 top;
-	Vector2 bottom;
+	//wip
+	float top = 0;
+	float bottom = -50;
+
+	string correctCode = "";
 
 	public Dictionary<int, string> replacedWords = new Dictionary<int, string> ();
+	public Dictionary<int, List<Rect>> rectangles = new Dictionary<int, List<Rect>>(); //wip
 
-	private TextGenerator generator;
-	private void OnEnable()
-	{
-		//state = State.SELECTING;
-	}
 	private void Start() 
 	{
-		state = State.SELECTING;
+		//rectangles.Add (new List<Rect> ());
 		textComponent = GetComponent<Text> ();
 		mainCamera = Camera.main;
 
-		//generator = textComponent.cachedTextGenerator;
+		XmlDocument doc = new XmlDocument();
+		doc.Load ("Assets/Scripts/test.xml");
 
-		replacedWords.Add (1, "pi");
-
-		generator = new TextGenerator (textComponent.text.Length);
-		Vector2 extents = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
-		generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
-
-		int characterIndex = 0;
-		top = textComponent.transform.TransformPoint(new Vector2 (generator.verts [characterIndex * 4].position.x, generator.verts [characterIndex * 4].position.y));
-		characterIndex = textComponent.text.Length - 1;
-		bottom = textComponent.transform.TransformPoint(new Vector2 (generator.verts [characterIndex * 4].position.x, generator.verts [characterIndex * 4 + 2].position.y));
-
-		print (top);
-		print (bottom);
-
-		//Get indicies of clickable words
-		for (int i = 0; i < ClickableWords.Count; i++) 
+		correctCode = doc.DocumentElement.SelectSingleNode ("/stuff/correctcode").InnerText;
+		XmlNode levelnode =  doc.DocumentElement.SelectSingleNode("/stuff/code");
+		foreach (XmlNode node in levelnode.ChildNodes) 
 		{
-			List<int> testIndex = new List<int> ();
-			wordIndexes.Add (new List<int>());
-			string theText = textComponent.text;
-			int index = 0;
-			while (theText.Contains (ClickableWords [i])) 
+			textComponent.text += node.InnerText;
+			string text = textComponent.text;
+
+			if (node.Name == "r1")
 			{
-				testIndex.Add (theText.IndexOf (ClickableWords [i]));
-				wordIndexes [i].Add (theText.IndexOf (ClickableWords [i]));
-				int offset = testIndex [index] + ClickableWords [i].Length + 1;
-				int length = theText.Length - offset;
+				TextGenerator generator;
 
-				if (index > 0) 
-				{
-					testIndex [index] += testIndex [index - 1] + ClickableWords [i].Length + 1;
-					wordIndexes [i] [index] += wordIndexes [i] [index - 1] + ClickableWords [i].Length + 1;
-				}
-				index++;
-				if (length > 0)
-				{
-					theText = theText.Substring (offset, length);
-				} 
-				else 
-				{
-					theText = "";
-				}
-			}
-			int indexOfTextQuad = 0;
-			rectangles.Add (new List<Rect> ());
+				generator = new TextGenerator (textComponent.text.Length);
+				Vector2 extents = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
+				generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
 
-			for (int c = 0; c < wordIndexes[i].Count; c++) 
-			{
-
-				indexOfTextQuad = wordIndexes[i][c];
+				int indexOfTextQuad = text.Length - node.InnerText.Length;
 				Vector2 upperLeft = new Vector2 (generator.verts [indexOfTextQuad * 4].position.x, generator.verts [indexOfTextQuad * 4].position.y);
-				indexOfTextQuad = (wordIndexes[i][c]) + ClickableWords [i].Length;
+				indexOfTextQuad = text.Length;
 				Vector2 bottomright = new Vector2 (generator.verts [indexOfTextQuad * 4].position.x, generator.verts [indexOfTextQuad * 4 + 2].position.y);
 
 				Vector3 uleft = textComponent.transform.TransformPoint (upperLeft);
 				Vector3 bright = textComponent.transform.TransformPoint (bottomright);
 				Vector2 size = bright - uleft;
-				Rect test = new Rect (uleft, size);
-				rectangles [rectangles.Count - 1].Add (test);
+				Rect newRectangle = new Rect (uleft, size);
+		
+				int type = -1;
+				foreach (XmlAttribute attribute in node.Attributes)
+				{
+					if (attribute.Name == "t") 
+					{
+						type = int.Parse (attribute.Value);
+					}
+				}
+				if (!rectangles.ContainsKey (type))  //temp
+				{
+					rectangles.Add (type, new List<Rect>());
+				}
+				rectangles [type].Add (newRectangle);
+
 			}
 		}
-		for (int i = 0; i < rectangles.Count; i++)
+		foreach (KeyValuePair<int, List<Rect>> entry in rectangles) 
 		{
-			for (int j = 0; j < rectangles [i].Count; j++) {
-				Rect test = rectangles [i][j];
+			for (int i = 0; i < entry.Value.Count; i++) 
+			{
+				Rect test = entry.Value [i];
 
 				Vector2 a = new Vector3 (test.x, test.y);
 				Vector2 b = new Vector3 (test.x + test.width, test.y);
@@ -120,37 +101,28 @@ public class TextTester : MonoBehaviour
 
 	void Update()
 	{
-		//if (state == State.SELECTING) 
 		switch(state)
 		{
-
-
-
 		case State.SELECTING:
 			
 			if (Input.GetMouseButtonDown (0)) {
 				Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 
-				for (int i = 0; i < rectangles.Count; i++) {
-					for (int j = 0; j < rectangles [i].Count; j++) {
-						if (rectangles [i] [j].Contains (clickPosition, true)) {
-							if (i == 1) { //temp
-								print (ClickableWords [i]);
-								for (int c = 0; c < wordIndexes [i].Count; c++) {
-									int index = textComponent.text.IndexOf (ClickableWords [i]);
-									string newString = textComponent.text.Substring (0, index);
-									newString += replacedWords [i];
-									newString += textComponent.text.Substring 
-									(index + ClickableWords [i].Length, 
-										textComponent.text.Length -
-										(newString.Length + (ClickableWords [i].Length - replacedWords [i].Length)));
-
-									textComponent.text = newString;
-								}
+				foreach (KeyValuePair<int, List<Rect>> entry in rectangles) 
+				{
+					for (int i = 0; i < entry.Value.Count; i++) 
+					{
+						if (entry.Value [i].Contains (clickPosition, true)) 
+						{
+							if (entry.Key == 0)
+							{ //temp
+								textComponent.text = correctCode;
 						
 								state = State.CORRECT;
 								break;
-							} else {
+							} 
+							else 
+							{
 								state = State.INCORRECT;
 								break;
 							}
@@ -166,12 +138,12 @@ public class TextTester : MonoBehaviour
 			float x = 0;
 			float y = 0;
 
-			if (Input.GetKey ("up") && mainCamera.transform.position.y < top.y) 
+			if (Input.GetKey ("up") && mainCamera.transform.position.y < top) 
 			{
 				y = 1;
 			}
 
-			if (Input.GetKey ("down") && mainCamera.transform.position.y > bottom.y) 
+			if (Input.GetKey ("down") && mainCamera.transform.position.y > bottom) 
 			{
 				y = -1;
 			}
