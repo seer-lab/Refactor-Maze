@@ -15,6 +15,7 @@ public class TextTester : MonoBehaviour
 	public Camera mainCamera;
 
 	public List<string> ClickableWords = new List<string>(); 
+	List<string> codeBlocks = new List<string> ();
 	List<List<int>> wordIndexes = new List<List<int>> ();
 
 	public enum State{LOOKING, SELECTING, CORRECT, INCORRECT};
@@ -30,14 +31,44 @@ public class TextTester : MonoBehaviour
 	public Dictionary<int, string> replacedWords = new Dictionary<int, string> ();
 	public Dictionary<int, List<Rect>> rectangles = new Dictionary<int, List<Rect>>(); //wip
 
-	private void Start() 
-	{
-		//rectangles.Add (new List<Rect> ());
-		textComponent = GetComponent<Text> ();
-		mainCamera = Camera.main;
+	int currentBlock = 0;
 
+	private void startLevel()
+	{
 		XmlDocument doc = new XmlDocument();
-		doc.Load ("Assets/Scripts/test.xml");
+		doc.Load ("Assets/Scripts/testLevel.xml");
+
+		XmlNode levelnode =  doc.DocumentElement.SelectSingleNode("/level");
+		foreach (XmlNode node in levelnode.ChildNodes) 
+		{
+			if (node.Name == "block")
+			{
+				codeBlocks.Add (node.InnerText);
+			}
+		}
+	}
+
+	private void shuffleCodeBlocks()
+	{
+		//Fisher-Yates shuffle
+		int max = codeBlocks.Count;
+		int theMax = max - 1;
+		while (max > 0) 
+		{
+			int randomNumber = Random.Range (0, max);
+			string temp = codeBlocks [theMax];
+			codeBlocks[theMax] = codeBlocks[randomNumber];
+			codeBlocks [randomNumber] = temp;
+			max--;
+		}		
+	}
+		
+	private void getBoxes()
+	{
+		textComponent.text = "";
+		rectangles.Clear ();
+		XmlDocument doc = new XmlDocument();
+		doc.Load ("Assets/Scripts/" + codeBlocks[currentBlock]);
 
 		correctCode = doc.DocumentElement.SelectSingleNode ("/stuff/correctcode").InnerText;
 		XmlNode levelnode =  doc.DocumentElement.SelectSingleNode("/stuff/code");
@@ -46,7 +77,7 @@ public class TextTester : MonoBehaviour
 			textComponent.text += node.InnerText;
 			string text = textComponent.text;
 
-			if (node.Name == "r1")
+			if (node.Name == "smell")
 			{
 				TextGenerator generator;
 
@@ -57,7 +88,7 @@ public class TextTester : MonoBehaviour
 				int type = -1;
 				foreach (XmlAttribute attribute in node.Attributes)
 				{
-					if (attribute.Name == "t") 
+					if (attribute.Name == "id") 
 					{
 						type = int.Parse (attribute.Value);
 					}
@@ -118,8 +149,7 @@ public class TextTester : MonoBehaviour
 				Rect newRectangle = new Rect (uLeft, size);
 
 				rectangles [type].Add (newRectangle);
-
-
+			
 				/*	int indexOfTextQuad = text.Length - node.InnerText.Length;
 				Vector2 upperLeft = new Vector2 (generator.verts [indexOfTextQuad * 4].position.x, generator.verts [indexOfTextQuad * 4].position.y);
 				//indexOfTextQuad = text.Length;
@@ -163,6 +193,44 @@ public class TextTester : MonoBehaviour
 				Debug.DrawLine (c, a, Color.blue, 50f);
 			}
 		}
+		TextGenerator g;
+
+		g = new TextGenerator (textComponent.text.Length);
+		Vector2 e = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
+		g.Populate (textComponent.text, textComponent.GetGenerationSettings (e));
+
+		int what = textComponent.text.Length;
+		Vector2 r = new Vector2 (g.verts [what * 4 + 2].position.x, g.verts [what * 4 + 2].position.y);
+
+		bottom = textComponent.transform.TransformPoint (r).y;
+
+	//	bottom = bBight.y;
+
+	}
+
+	public void nextBlock()
+	{
+		currentBlock++;
+		if (currentBlock == codeBlocks.Count)
+		{
+			currentBlock = 0;
+			shuffleCodeBlocks ();
+		}
+		getBoxes ();
+	}
+
+	private void Start() 
+	{
+		startLevel ();
+		shuffleCodeBlocks ();
+
+		for (int i = 0; i < codeBlocks.Count; i++) 
+		{
+			print (codeBlocks [i]);
+		}
+		textComponent = GetComponent<Text> ();
+		mainCamera = Camera.main;
+		getBoxes ();
 	}
 
 	void Update()
@@ -171,7 +239,8 @@ public class TextTester : MonoBehaviour
 		{
 		case State.SELECTING:
 
-			if (Input.GetMouseButtonDown (0)) {
+			if (Input.GetMouseButtonDown (0)) 
+			{
 				Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 
 				foreach (KeyValuePair<int, List<Rect>> entry in rectangles) 

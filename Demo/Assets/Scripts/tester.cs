@@ -43,9 +43,8 @@ public class tester : MonoBehaviour {
 	{
 		if (Input.GetKeyDown ("p")) 
 		{
-			//player.door.SetActive (false);
-			//player.door = null;
 			switchMode ();
+			codeObject.state = TextTester.State.SELECTING; //temp
 
 		}
 
@@ -79,10 +78,17 @@ public class tester : MonoBehaviour {
 				if (transitionTimer >= transitionTime)
 				{
 					transitionTimer = 0.0f;
-					if (codeObject.state == TextTester.State.CORRECT)
+					if (codeObject.state == TextTester.State.CORRECT) 
 					{
-						door.SetActive (false);
+						if (door != null) //temp
+						{
+							door.SetActive (false);
+						}
 					} 
+					else if (codeObject.state == TextTester.State.INCORRECT) 
+					{
+						codeObject.nextBlock ();	
+					}
 					switchMode ();
 				}
 
@@ -95,6 +101,13 @@ public class tester : MonoBehaviour {
 		onOff = !onOff;
 		level.SetActive (onOff);
 		code.SetActive (!onOff);
-		mainCamera.transform.position = cameraPosition;
+		if (code.active) 
+		{
+			mainCamera.transform.position = new Vector3 (cameraPosition.x, 0, cameraPosition.z);
+		}
+		else 
+		{
+			mainCamera.transform.position = cameraPosition;
+		}
 	}
 }

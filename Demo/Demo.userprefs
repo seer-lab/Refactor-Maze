@@ -1,15 +1,14 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\TextTester.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\test3.xml">
     <Files>
-      <File FileName="Assets\Scripts\PlayerController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\EnemyController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\SmellScript.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\LevelCreate.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\LevelCreate.cs" Line="287" Column="48" />
       <File FileName="Assets\Scripts\tester.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\TextTester.cs" Line="80" Column="123" />
-      <File FileName="Assets\Scripts\test.xml" Line="7" Column="2" />
-      <File FileName="Assets\Scripts\test2.xml" Line="8" Column="8" />
+      <File FileName="Assets\Scripts\TextTester.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\test.xml" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\test2.xml" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\test3.xml" Line="12" Column="25" />
+      <File FileName="Assets\Scripts\testlevel.xml" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

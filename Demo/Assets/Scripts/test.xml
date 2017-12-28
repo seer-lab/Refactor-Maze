@@ -3,22 +3,22 @@
 <code>
 float getCircleCircumference (float radius)
 {
-    return <r1 t="0">3.14</r1> * radius * <r1>2</r1>;
+    return <smell id="0">3.14</smell> * radius * <smell>2</smell>;
 }
 
 float getCircleArea(float radius)
 {
-    return <r1 t="0">3.14</r1> * pow(radius, <r1>2</r1>);
+    return <smell id="0">3.14</smell> * pow(radius, <smell>2</smell>);
 }
 
 float getSphereVolume(float radius)
 {
-    return (4 * <r1 t="0">3.14</r1> * pow(radius, 3))/3;
+    return (4 * <smell id="0">3.14</smell> * pow(radius, 3))/3;
 }
 
 float getSphereSurfaceArea(float radius)
 {
-    return 4 * <r1 t="0">3.14</r1> * pow(radius, <r1>2</r1>);
+    return 4 * <smell id="0">3.14</smell> * pow(radius, <smell>2</smell>);
 } 
 </code>
 <correctcode>

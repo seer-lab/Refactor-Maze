@@ -20,8 +20,6 @@ public class LevelCreate : MonoBehaviour {
 	const int NOT_VISITED = 0;
 	const int VISISTED = 1;
 
-	int unvisitedCells;
-
 	public int columns = 8;
 	public int rows = 8;
 	public GameObject[] floorTiles;
@@ -43,7 +41,7 @@ public class LevelCreate : MonoBehaviour {
 	public Dictionary<Vector2, int> theTiles = new Dictionary<Vector2, int>();
 	private List <Vector2> validPositions = new List<Vector2>();
 
-	private List <Vector2> paths = new List<Vector2>();
+	//private List <Vector2> paths = new List<Vector2>();
 	private List <Vector2> thePath = new List<Vector2>();
 
 	private Stack<Cell> cells = new Stack<Cell>();
@@ -53,13 +51,15 @@ public class LevelCreate : MonoBehaviour {
 	private Transform level;  
 	private Transform codeLevel;
 
+
+	//List <Vector2> wallIndexes = new List<Vector2>();
 	void InitialiseList ()
 	{
 		//Loop through x axis (columns).
-		for(int x = 0; x < columns; x++)
+		for(int x = 0; x < columns * 2 + 1; x++)
 		{
 			//Within each column, loop through y axis (rows).
-			for(int y = 0; y < rows; y++)
+			for(int y = 0; y < rows * 2 + 1; y++)
 			{
 				//At each index add a new Vector2 to our list with the x and y coordinates of that position.
 				//theTiles.Add(new Vector2(x, y), PASSABLE);
@@ -68,18 +68,6 @@ public class LevelCreate : MonoBehaviour {
 				validPositions.Add(new Vector2(x, y));
 			}
 		}
-
-		for(int x = 0; x < columns; x+=2)
-		{
-			//Within each column, loop through y axis (rows).
-			for(int y = 0; y < rows; y+=2)
-			{
-				paths.Add(new Vector2(x, y));
-				visitedCells.Add(new Vector2(x, y), NOT_VISITED);
-				unvisitedCells++;
-			}
-		}
-
 	}
 
 	void BoardSetup ()
@@ -91,14 +79,14 @@ public class LevelCreate : MonoBehaviour {
 		//codeLevel.gameObject.SetActive (false);
 
 
-		for(int x = -1; x <= columns; x++)
+		for(int x = -1; x <= columns * 2 + 1; x++)
 		{
-			for(int y = -1; y <= rows; y++)
+			for(int y = -1; y <= rows * 2 + 1; y++)
 			{
 				GameObject toInstantiate;
 
 				//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
-				if(x == -1 || x == columns || y == -1 || y == rows)
+				if(x == -1 || x == columns * 2 + 1 || y == -1 || y == rows * 2 + 1|| x == columns || y == rows)
 				{
 					if (x == 20 && y == -1)
 					{
@@ -131,19 +119,41 @@ public class LevelCreate : MonoBehaviour {
 		return randomPosition;
 	}
 	 //still need to remove wall tiles from list of valid positions
-	void BackTracker()
+	void BackTracker(Vector2 minBounds, Vector2 maxBounds)
 	{
+		int unvisitedCells = 0;
+
+		for(int x = (int)minBounds.x; x < maxBounds.x; x+=2)
+		{
+			//Within each column, loop through y axis (rows).
+			for(int y = (int)minBounds.y; y < maxBounds.y; y+=2)
+			{
+				visitedCells.Add(new Vector2(x, y), NOT_VISITED);
+				unvisitedCells++;
+			}
+		}
+	
+		List <Vector2> wallIndexes = new List<Vector2>();
+
+		for (int x = (int)minBounds.x; x < maxBounds.x; x++) 
+		{
+			for (int y = (int)minBounds.y; y < maxBounds.y; y++) 
+			{
+				wallIndexes.Add (new Vector2 (x, y));
+			}
+		}
+			
+
 		Cell currentCell = new Cell();
-		currentCell.position = new Vector2(columns / 2, rows / 2 );
+		//currentCell.position = new Vector2(maxBounds.x / 2 , maxBounds.y / 2 );
+		currentCell.position = new Vector2(minBounds.x , minBounds.y );
 		visitedCells[currentCell.position] = VISISTED;
 		unvisitedCells--;
 		thePath.Add (currentCell.position);
 
-		List <Vector2> wallIndexes = new List<Vector2>(validPositions);
-
 		while (unvisitedCells > 0) 
 		{
-			if (cellHasNeighbours (currentCell)) 
+			if (cellHasNeighbours (currentCell, minBounds, maxBounds)) 
 			{
 				int neighbour = Random.Range(0,currentCell.neighbours.Count);
 				cells.Push (currentCell);
@@ -173,73 +183,36 @@ public class LevelCreate : MonoBehaviour {
 			}
 		}
 
-		//Remove random walls
-		for (int i = 0; i < columns/2; i++)
-		{
-			int index = Random.Range (0, wallIndexes.Count);
+		RemoveRandomWalls(wallIndexes, minBounds, maxBounds);
 
-			Vector2 right = new Vector2 (wallIndexes [index].x + 1, wallIndexes [index].y);
-			Vector2 left = new Vector2 (wallIndexes [index].x - 1, wallIndexes [index].y);
-			Vector2 up = new Vector2 (wallIndexes [index].x, wallIndexes [index].y + 1);
-			Vector2 down = new Vector2 (wallIndexes [index].x, wallIndexes [index].y - 1);
+		SetWalls (wallIndexes);
 
-			if (!IsPassable (right) &&
-			    !IsPassable (left) &&
-			    (IsPassable (up) &&
-			    IsPassable (down))) 
-			{
-				wallIndexes.RemoveAt (index);
-			} 
-			else if (!IsPassable (up) &&
-			        !IsPassable (down) &&
-			        (IsPassable (left) &&
-					IsPassable (right))) 
-			{
-				wallIndexes.RemoveAt (index);
-
-			}
-			else 
-			{
-				i--;
-			}
-		//	wallIndexes.RemoveAt (Random.Range (0, wallIndexes.Count));
-
-		}
-
-		for (int i = 0; i < wallIndexes.Count; i++)
-		{
-			//if (theTiles [wallIndexes [i]] == IMPASSABLE)
-
-			GameObject instance = Instantiate(wallTiles, wallIndexes [i], Quaternion.identity);
-			instance.transform.SetParent (level);
-			validPositions.Remove (wallIndexes [i]);
-
-		}
+		visitedCells.Clear ();
 	}
 
-	bool cellHasNeighbours(Cell cell)
+	bool cellHasNeighbours(Cell cell, Vector2 minBounds, Vector2 maxBounds)
 	{
 		if (!cell.foundNeighbours) 
 		{
-			if (cell.position.x - 2 >= 0) 
+			if (cell.position.x - 2 >= minBounds.x) 
 			{
 				Cell newCell = new Cell ();
 				newCell.position = new Vector2 (cell.position.x - 2, cell.position.y);
 				cell.neighbours.Add (newCell);
 			}
-			if (cell.position.x + 2 < columns) 
+			if (cell.position.x + 2 < maxBounds.x) 
 			{
 				Cell newCell = new Cell ();
 				newCell.position = new Vector2 (cell.position.x + 2, cell.position.y);
 				cell.neighbours.Add (newCell);
 			}
-			if (cell.position.y - 2 >= 0) 
+			if (cell.position.y - 2 >= minBounds.y ) 
 			{
 				Cell newCell = new Cell ();
 				newCell.position = new Vector2 (cell.position.x, cell.position.y - 2);
 				cell.neighbours.Add (newCell);
 			}
-			if (cell.position.y + 2 < rows) 
+			if (cell.position.y + 2 < maxBounds.y) 
 			{
 				Cell newCell = new Cell ();
 				newCell.position = new Vector2 (cell.position.x, cell.position.y + 2);
@@ -259,157 +232,6 @@ public class LevelCreate : MonoBehaviour {
 		return cell.neighbours.Count > 0;
 	}
 
-	void SetWalls(int walls)
-	{
-		for (int currentWall = 0; currentWall < walls;)
-		{
-			//lookingForPosition will be set to false once a valid start position has been found
-			bool lookingForPosition = true;
-			while(lookingForPosition)
-			{
-				//From where a wall starts being built. If this is equal to 0 the wall builds along the X axis, else it builds along the Y
-				int startAtX =  Random.Range(0,2);
-				//Determines the direction the wall builds in. 
-				int direction = Random.Range(0,2);
-
-				//The direction the wall builds in
-				int movingX = 0;
-				int movingY = 0;
-
-				//The starting position of the wall being built and the position of the first tile of the wall
-				int startingX = 0; 
-				int startingY =  0;
-
-				if(startAtX == 0)
-				{
-
-					startingX = Random.Range(2, columns - 2);
-					if(direction == 0)
-					{
-						startingY = 0;
-						movingY = 1;
-
-					}
-					else
-					{
-						startingY = rows - 1;
-						movingY = -1;
-					}
-				}
-				else
-				{
-					startingY = Random.Range(2, rows - 2);
-					if(direction == 0)
-					{
-						startingX = 0;
-						movingX = 1;
-					}
-					else
-					{
-						startingX = rows - 1;
-						movingX = -1;
-					}
-				}
-				Vector2 currentPosition = new Vector2(startingX, startingY);
-
-
-				if(theTiles[currentPosition] == PASSABLE)
-				{
-					//The positions adjacent to the current(starting) position
-					//These are the positions above and below the the current position when the wall is building horizontally and the
-					//positions to the left and right if building vertically
-					Vector2 leftAbovePosition;
-					Vector2 rightBelowPosition;
-					if(movingX != 0)
-					{
-						leftAbovePosition = new Vector2
-							(currentPosition.x, currentPosition.y + 1);
-						rightBelowPosition = new Vector2
-							(currentPosition.x, currentPosition.y - 1);
-					}
-					else
-					{
-						leftAbovePosition = new Vector2
-							(currentPosition.x - 1, currentPosition.y);
-						rightBelowPosition = new Vector2
-							(currentPosition.x + 1, currentPosition.y);
-					}
-					//Make sure adjacent positions are in the list of positions
-					if(theTiles[leftAbovePosition] != IMPASSABLE && theTiles[rightBelowPosition] != IMPASSABLE)
-					{
-						List <Vector2> wallIndexes = new List<Vector2>();
-						lookingForPosition = false;	
-						//This will be set to true when a position the invalidPositions list is hit
-						bool hitInvalid = false;
-						//lookingForEnd will be set to false when an invalid position or a position not in the list of positions is found
-						bool lookingForEnd = true;
-						while(lookingForEnd)
-						{
-							if(!InBounds(currentPosition) || theTiles[currentPosition] == IMPASSABLE)
-							{
-								lookingForEnd = false;
-							}
-							else if(theTiles[currentPosition] == INVALID)
-							{
-								hitInvalid = true;
-								lookingForEnd = false;
-							}
-							else
-							{
-								wallIndexes.Add(currentPosition);
-								currentPosition.x += movingX;
-								currentPosition.y += movingY;
-
-							}
-						}
-						//If we hit a position not in the list of positions remove a random position from the list of wall positions
-						//And set the positions adjacent to it to invalid
-						if(!hitInvalid)
-						{
-							int removedIndex = Random.Range(0, wallIndexes.Count);
-
-							Vector2 removedTile = wallIndexes[removedIndex];
-							Vector2 removedTileUpLeft;
-							Vector2 removedTileDownRight;
-							if(movingX != 0)
-							{
-								removedTileUpLeft= new Vector2
-									(removedTile.x, removedTile.y + 1);
-								removedTileDownRight = new Vector2
-									(removedTile.x, removedTile.y - 1);
-							}
-							else
-							{
-								removedTileUpLeft = new Vector2
-									(removedTile.x - 1, removedTile.y);
-								removedTileDownRight = new Vector2
-									(removedTile.x + 1, removedTile.y);
-							}
-
-							theTiles[removedTile] = INVALID;
-							theTiles[removedTileUpLeft] = INVALID;
-							theTiles[removedTileDownRight] = INVALID;
-
-							wallIndexes.RemoveAt(removedIndex);
-						}
-
-						for(int c = 0; c < wallIndexes.Count; c ++)
-						{
-							Instantiate(wallTiles, wallIndexes[c], Quaternion.identity);
-							theTiles[wallIndexes[c]] = IMPASSABLE;
-						}
-						for(int c = 0; c < wallIndexes.Count; c ++)
-						{
-							validPositions.Remove (wallIndexes[c]);
-						}
-						currentWall++;
-					}
-				}
-			}
-
-		}
-	}
-
 	public bool InBounds(Vector2 position)
 	{
 		return position.x > -1 && position.x < columns && position.y > -1 && position.y < rows;
@@ -419,6 +241,60 @@ public class LevelCreate : MonoBehaviour {
 		return InBounds(position) && theTiles[position] != IMPASSABLE;
 	}
 
+	public bool InBounds(Vector2 position, Vector2 minBound, Vector2 maxBound)
+	{
+		return position.x >= minBound.x && position.x < maxBound.x && position.y >= minBound.y && position.y < maxBound.y;
+	}
+	public bool IsPassable(Vector2 position, Vector2 minBound, Vector2 maxBound)
+	{
+		return InBounds(position, minBound, maxBound) && theTiles[position] != IMPASSABLE;
+	}
+
+	//This function turns the maze into an imperfect maze, meaning that there are loops
+	void RemoveRandomWalls(List<Vector2> wallIndexes, Vector2 minBounds, Vector2 maxBounds)
+	{
+		for (int i = 0; i < columns/2; i++)
+		{
+			int index = Random.Range (0, wallIndexes.Count);
+
+			Vector2 right = new Vector2 (wallIndexes [index].x + 1, wallIndexes [index].y);
+			Vector2 left = new Vector2 (wallIndexes [index].x - 1, wallIndexes [index].y);
+			Vector2 up = new Vector2 (wallIndexes [index].x, wallIndexes [index].y + 1);
+			Vector2 down = new Vector2 (wallIndexes [index].x, wallIndexes [index].y - 1);
+
+			if (!IsPassable (right, minBounds, maxBounds) &&
+				!IsPassable (left, minBounds, maxBounds) &&
+				(IsPassable (up, minBounds, maxBounds) &&
+					IsPassable (down, minBounds, maxBounds))) 
+			{
+				wallIndexes.RemoveAt (index);
+			} 
+			else if (!IsPassable (up, minBounds, maxBounds) &&
+				!IsPassable (down, minBounds, maxBounds) &&
+				(IsPassable (left, minBounds, maxBounds) &&
+					IsPassable (right, minBounds, maxBounds))) 
+			{
+				wallIndexes.RemoveAt (index);
+
+			}
+			else 
+			{
+				i--;
+			}
+		}
+	}
+
+	//Set walls for all the remaining wall indexes
+	void SetWalls(List<Vector2> wallIndexes)
+	{
+		for (int i = 0; i < wallIndexes.Count; i++)
+		{
+			GameObject instance = Instantiate(wallTiles, wallIndexes [i], Quaternion.identity);
+			instance.transform.SetParent (level);
+			validPositions.Remove (wallIndexes [i]);
+		} 
+	}
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -426,7 +302,52 @@ public class LevelCreate : MonoBehaviour {
 		BoardSetup ();
 
 	//	SetWalls (10);
-		BackTracker();
+		BackTracker(new Vector2(0, 0), new Vector2(columns, rows));
+		BackTracker(new Vector2(columns + 1, 0), new Vector2(columns * 2 + 1, rows));
+
+		BackTracker(new Vector2(0, rows + 1), new Vector2(columns, rows * 2 + 1));
+		BackTracker(new Vector2(columns + 1, rows + 1), new Vector2(columns * 2 + 1, rows * 2 + 1));
+
+		//need to change isPassable
+	/*	for (int i = 0; i < columns*2; i++)
+		{
+			int index = Random.Range (0, wallIndexes.Count);
+
+			Vector2 right = new Vector2 (wallIndexes [index].x + 1, wallIndexes [index].y);
+			Vector2 left = new Vector2 (wallIndexes [index].x - 1, wallIndexes [index].y);
+			Vector2 up = new Vector2 (wallIndexes [index].x, wallIndexes [index].y + 1);
+			Vector2 down = new Vector2 (wallIndexes [index].x, wallIndexes [index].y - 1);
+
+			if (!IsPassable (right) &&
+				!IsPassable (left) &&
+				(IsPassable (up) &&
+					IsPassable (down))) 
+			{
+				wallIndexes.RemoveAt (index);
+			} 
+			else if (!IsPassable (up) &&
+				!IsPassable (down) &&
+				(IsPassable (left) &&
+					IsPassable (right))) 
+			{
+				wallIndexes.RemoveAt (index);
+
+			}
+			else 
+			{
+				i--;
+			}
+		}*/
+
+	/*	for (int i = 0; i < wallIndexes.Count; i++)
+		{
+			//if (theTiles [wallIndexes [i]] == IMPASSABLE)
+
+			GameObject whatever = Instantiate(wallTiles, wallIndexes [i], Quaternion.identity);
+			whatever.transform.SetParent (level);
+			validPositions.Remove (wallIndexes [i]);
+
+		}*/
 
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
