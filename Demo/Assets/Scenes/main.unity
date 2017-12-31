@@ -234,6 +234,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   columns: 21
   rows: 21
+  mazesX: 2
+  mazesY: 2
   floorTiles:
   - {fileID: 1155731578901592, guid: 38bf0d2220aa291468e4e82485b4b89e, type: 2}
   wallTiles: {fileID: 1968155518566788, guid: f4ce13edfdbf0bd4592cabf9743144ac, type: 2}

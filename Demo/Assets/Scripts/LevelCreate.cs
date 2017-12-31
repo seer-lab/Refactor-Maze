@@ -22,6 +22,10 @@ public class LevelCreate : MonoBehaviour {
 
 	public int columns = 8;
 	public int rows = 8;
+
+	public int mazesX = 2;
+	public int mazesY = 2;
+
 	public GameObject[] floorTiles;
 	public GameObject wallTiles;
 	public GameObject key;
@@ -51,15 +55,18 @@ public class LevelCreate : MonoBehaviour {
 	private Transform level;  
 	private Transform codeLevel;
 
+	private int width;
+	private int height;
+
 
 	//List <Vector2> wallIndexes = new List<Vector2>();
 	void InitialiseList ()
 	{
 		//Loop through x axis (columns).
-		for(int x = 0; x < columns * 2 + 1; x++)
+		for(int x = 0; x < columns + width; x++)
 		{
 			//Within each column, loop through y axis (rows).
-			for(int y = 0; y < rows * 2 + 1; y++)
+			for(int y = 0; y < rows + height; y++)
 			{
 				//At each index add a new Vector2 to our list with the x and y coordinates of that position.
 				//theTiles.Add(new Vector2(x, y), PASSABLE);
@@ -79,18 +86,20 @@ public class LevelCreate : MonoBehaviour {
 		//codeLevel.gameObject.SetActive (false);
 
 
-		for(int x = -1; x <= columns * 2 + 1; x++)
+		for(int x = -1; x <= columns + width; x++)
 		{
-			for(int y = -1; y <= rows * 2 + 1; y++)
+			for(int y = -1; y <= rows + height; y++)
 			{
 				GameObject toInstantiate;
 
-				//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
-				if(x == -1 || x == columns * 2 + 1 || y == -1 || y == rows * 2 + 1|| x == columns || y == rows)
+				//Could probably rework this loop, doing this check every time through isn't great.
+				//Off the top of my head would require at least 3 loops, we'll see
+				if (((y + 1) % (rows + 1) == 0) ||((x + 1) % (columns + 1) == 0) )
 				{
 					if (x == 20 && y == -1)
 					{
 						//eww
+						//This will be reworked next update.
 					} 
 					else 
 					{
@@ -99,7 +108,6 @@ public class LevelCreate : MonoBehaviour {
 						instance.transform.SetParent (level);
 					}
 				}
-
 			}
 		}
 	}
@@ -298,56 +306,43 @@ public class LevelCreate : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
+
+		if (mazesX <= 1) 
+		{
+			width = 0;
+		}
+		else 
+		{
+			width = (mazesX - 1) * (columns + 1);
+		}
+
+		if (mazesY <= 1) 
+		{
+			height = 0;
+		}
+		else 
+		{
+			height = (mazesY - 1) * (rows + 1);
+		}
+
 		InitialiseList ();
 		BoardSetup ();
 
 	//	SetWalls (10);
-		BackTracker(new Vector2(0, 0), new Vector2(columns, rows));
-		BackTracker(new Vector2(columns + 1, 0), new Vector2(columns * 2 + 1, rows));
-
-		BackTracker(new Vector2(0, rows + 1), new Vector2(columns, rows * 2 + 1));
-		BackTracker(new Vector2(columns + 1, rows + 1), new Vector2(columns * 2 + 1, rows * 2 + 1));
-
-		//need to change isPassable
-	/*	for (int i = 0; i < columns*2; i++)
+		//need to rework this
+		for (int i = 0; i < mazesX; i++) 
 		{
-			int index = Random.Range (0, wallIndexes.Count);
-
-			Vector2 right = new Vector2 (wallIndexes [index].x + 1, wallIndexes [index].y);
-			Vector2 left = new Vector2 (wallIndexes [index].x - 1, wallIndexes [index].y);
-			Vector2 up = new Vector2 (wallIndexes [index].x, wallIndexes [index].y + 1);
-			Vector2 down = new Vector2 (wallIndexes [index].x, wallIndexes [index].y - 1);
-
-			if (!IsPassable (right) &&
-				!IsPassable (left) &&
-				(IsPassable (up) &&
-					IsPassable (down))) 
+			for (int c = 0; c < mazesY; c++) 
 			{
-				wallIndexes.RemoveAt (index);
-			} 
-			else if (!IsPassable (up) &&
-				!IsPassable (down) &&
-				(IsPassable (left) &&
-					IsPassable (right))) 
-			{
-				wallIndexes.RemoveAt (index);
-
+				BackTracker(new Vector2(i * (columns + 1), c * (rows + 1)), 
+					new Vector2(columns + (columns + 1) * i, rows + (rows + 1) * c));
 			}
-			else 
-			{
-				i--;
-			}
-		}*/
+		}
+		/*BackTracker(new Vector2(0, 0), new Vector2(columns, rows));
+		BackTracker(new Vector2(columns + 1, 0), new Vector2(columns * mazesX + 1, rows));
 
-	/*	for (int i = 0; i < wallIndexes.Count; i++)
-		{
-			//if (theTiles [wallIndexes [i]] == IMPASSABLE)
-
-			GameObject whatever = Instantiate(wallTiles, wallIndexes [i], Quaternion.identity);
-			whatever.transform.SetParent (level);
-			validPositions.Remove (wallIndexes [i]);
-
-		}*/
+		BackTracker(new Vector2(0, rows + 1), new Vector2(columns, rows * mazesX + 1));
+		BackTracker(new Vector2(columns + 1, rows + 1), new Vector2(columns * mazesX + 1, rows * mazesX + 1));*/
 
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
