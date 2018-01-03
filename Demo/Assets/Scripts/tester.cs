@@ -44,7 +44,7 @@ public class tester : MonoBehaviour {
 		if (Input.GetKeyDown ("p")) 
 		{
 			switchMode ();
-			codeObject.state = TextTester.State.SELECTING; //temp
+			codeObject.state = TextTester.State.SELECTING; //temp, just for testing
 
 		}
 

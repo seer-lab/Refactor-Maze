@@ -96,7 +96,7 @@ public class LevelCreate : MonoBehaviour {
 				//Off the top of my head would require at least 3 loops, we'll see
 				if (((y + 1) % (rows + 1) == 0) ||((x + 1) % (columns + 1) == 0) )
 				{
-					if (x == 20 && y == -1)
+					if (x == 21 && y == 0)
 					{
 						//eww
 						//This will be reworked next update.
@@ -349,7 +349,7 @@ public class LevelCreate : MonoBehaviour {
 
 		GameObject instance  = Instantiate (key, new Vector2(0, 20), Quaternion.identity);
 		instance.transform.SetParent (level);
-		instance = Instantiate (door, new Vector2(20, -1), Quaternion.identity);
+		instance = Instantiate (door, new Vector2(21, 0), Quaternion.identity);
 		instance.transform.SetParent (level);
 
 		instance = Instantiate (player, new Vector2 (columns / 2, rows / 2), Quaternion.identity);

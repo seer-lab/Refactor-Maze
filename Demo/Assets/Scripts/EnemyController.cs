@@ -19,23 +19,6 @@ public class EnemyController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		//clean all of this up geez
-		if (player.holding) 
-		{
-			awake = true;
-		} 
-		else 
-		{
-			awake = false;
-		}
-
-		if (awake) 
-		{
-			renderer.color = new Color (255, 0, 0);
-		}
-		else 
-		{
-			renderer.color = new Color (0, 0, 0);
-		}
+		
 	}
 }
