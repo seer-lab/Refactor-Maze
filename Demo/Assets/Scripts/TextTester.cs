@@ -16,7 +16,6 @@ public class TextTester : MonoBehaviour
 
 	public List<string> ClickableWords = new List<string>(); 
 	List<string> codeBlocks = new List<string> ();
-	List<List<int>> wordIndexes = new List<List<int>> ();
 
 	public enum State{LOOKING, SELECTING, CORRECT, INCORRECT};
 	public State state;
@@ -33,10 +32,11 @@ public class TextTester : MonoBehaviour
 
 	int currentBlock = 0;
 
-	private void startLevel()
+	public void startLevel(string level) //string for now
 	{
+		codeBlocks.Clear ();
 		XmlDocument doc = new XmlDocument();
-		doc.Load ("Assets/Scripts/testLevel.xml");
+		doc.Load ("Assets/Scripts/" + level + ".xml");
 
 		XmlNode levelnode =  doc.DocumentElement.SelectSingleNode("/level");
 		foreach (XmlNode node in levelnode.ChildNodes) 
@@ -219,9 +219,9 @@ public class TextTester : MonoBehaviour
 		getBoxes ();
 	}
 
-	private void Start() 
+	public void SetUp(string level)
 	{
-		startLevel ();
+		startLevel (level);
 		shuffleCodeBlocks ();
 
 		for (int i = 0; i < codeBlocks.Count; i++) 
@@ -231,6 +231,11 @@ public class TextTester : MonoBehaviour
 		textComponent = GetComponent<Text> ();
 		mainCamera = Camera.main;
 		getBoxes ();
+	}
+
+	private void Start() 
+	{
+		SetUp ("testlevel");
 	}
 
 	void Update()

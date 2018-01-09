@@ -242,7 +242,7 @@ MonoBehaviour:
   key: {fileID: 1636913741350086, guid: effead8619fd96b4e971d5d11001b34d, type: 2}
   door: {fileID: 1085570291411844, guid: ba3952ec3d39e4a4fb6279f1b615a912, type: 2}
   player: {fileID: 1058593679394910, guid: 3725f863f18279545972dbf08440b64b, type: 2}
-  camera: {fileID: 1349760958}
+  mainCamera: {fileID: 1349760958}
   tester: {fileID: 1850129062139864, guid: a59f03eb928a3b44b974a97f3c0d5bf3, type: 2}
   code: {fileID: 1114777880106910, guid: 7bc31570f29c10a4397013744f5373fa, type: 2}
   outerWallTile: {fileID: 1968155518566788, guid: f4ce13edfdbf0bd4592cabf9743144ac,

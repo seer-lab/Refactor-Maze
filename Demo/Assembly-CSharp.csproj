@@ -59,8 +59,11 @@
      <Compile Include="Assets\Scripts\TextTester.cs" />
      <None Include="Assets\Scripts\test.xml" />
      <None Include="Assets\Scripts\test2.xml" />
+     <None Include="Assets\Scripts\test5.xml" />
      <None Include="Assets\Scripts\test3.xml" />
      <None Include="Assets\Scripts\testlevel.xml" />
+     <None Include="Assets\Scripts\testlevel2.xml" />
+     <None Include="Assets\Scripts\test4.xml" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

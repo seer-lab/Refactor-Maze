@@ -32,7 +32,7 @@ public class LevelCreate : MonoBehaviour {
 	public GameObject door; 
 
 	public GameObject player;
-	public GameObject camera;
+	public GameObject mainCamera;
 
 	public GameObject tester;
 	public GameObject code;
@@ -43,6 +43,9 @@ public class LevelCreate : MonoBehaviour {
 	//	private Transform boardHolder;  
 	//int value is the type of tile
 	public Dictionary<Vector2, int> theTiles = new Dictionary<Vector2, int>();
+
+	private Dictionary<Vector2, GameObject> outerWalls = new Dictionary<Vector2, GameObject> ();
+
 	private List <Vector2> validPositions = new List<Vector2>();
 
 	//private List <Vector2> paths = new List<Vector2>();
@@ -57,7 +60,6 @@ public class LevelCreate : MonoBehaviour {
 
 	private int width;
 	private int height;
-
 
 	//List <Vector2> wallIndexes = new List<Vector2>();
 	void InitialiseList ()
@@ -83,8 +85,9 @@ public class LevelCreate : MonoBehaviour {
 		codeLevel = new GameObject ("CodeLevel").transform;
 		GameObject whatever = Instantiate (code, Vector2.zero, Quaternion.identity);
 		whatever.transform.SetParent (codeLevel);
-		//codeLevel.gameObject.SetActive (false);
 
+		Transform outer = new GameObject ("OuterWalls").transform;
+		outer.SetParent (level);
 
 		for(int x = -1; x <= columns + width; x++)
 		{
@@ -96,17 +99,11 @@ public class LevelCreate : MonoBehaviour {
 				//Off the top of my head would require at least 3 loops, we'll see
 				if (((y + 1) % (rows + 1) == 0) ||((x + 1) % (columns + 1) == 0) )
 				{
-					if (x == 21 && y == 0)
-					{
-						//eww
-						//This will be reworked next update.
-					} 
-					else 
-					{
-						toInstantiate = outerWallTile;
-						GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity);
-						instance.transform.SetParent (level);
-					}
+					toInstantiate = outerWallTile;
+					GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity);
+					instance.transform.SetParent (level);
+
+					outerWalls.Add (new Vector2 (x, y), instance);
 				}
 			}
 		}
@@ -303,6 +300,68 @@ public class LevelCreate : MonoBehaviour {
 		} 
 	}
 
+	void CreateDoor(Vector2 position)
+	{
+		GameObject instance = Instantiate (door, position, Quaternion.identity);
+		instance.transform.SetParent (level);
+		Destroy (outerWalls [instance.transform.position]);
+		outerWalls.Remove (instance.transform.position);
+
+		GameObject testObject = new GameObject("HEY");
+		testObject.tag = "Exit";
+		BoxCollider2D bc = testObject.AddComponent (typeof(BoxCollider2D)) as BoxCollider2D;
+		bc.isTrigger = true;
+		bc.size = new Vector2 (0.9f, 0.9f);
+
+		testObject.transform.position = instance.transform.position;
+	}
+
+	void SetDoors()
+	{
+		
+
+		int x = 1;
+		int y = 0;
+		bool right = true;
+		for (int i = 0; i < mazesX * mazesY; i++) 
+		{
+			if (right) 
+			{
+				if (x == mazesX) 
+				{
+					y++;
+					CreateDoor (new Vector2 (((columns - 1) + ((columns + 1) * (x - 1))), ((rows + 1) * y) - 1));
+					x--;
+					right = false;
+				}
+				else
+				{
+					//CreateDoor (new Vector2 (((columns + 1) * x) - 1, 0 + ((y - 1) * rows) + 1));
+					CreateDoor (new Vector2 (((columns + 1) * x) - 1, (rows - 1) + (rows + 1) * y)); //starts at the top
+
+					x++;
+				}
+
+			}
+			else
+			{
+				if (x == 0) 
+				{
+					y++;
+
+					CreateDoor (new Vector2 (((columns) * x), ((rows + 1) * y) - 1));
+					x++;
+					right = true;
+				}
+				else
+				{
+					CreateDoor (new Vector2 (((columns + 1) * x) - 1, 0 + (rows + 1) * y));
+					x--;
+				}
+			}
+		}
+	}
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -338,26 +397,22 @@ public class LevelCreate : MonoBehaviour {
 					new Vector2(columns + (columns + 1) * i, rows + (rows + 1) * c));
 			}
 		}
-		/*BackTracker(new Vector2(0, 0), new Vector2(columns, rows));
-		BackTracker(new Vector2(columns + 1, 0), new Vector2(columns * mazesX + 1, rows));
-
-		BackTracker(new Vector2(0, rows + 1), new Vector2(columns, rows * mazesX + 1));
-		BackTracker(new Vector2(columns + 1, rows + 1), new Vector2(columns * mazesX + 1, rows * mazesX + 1));*/
 
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
 
 		GameObject instance  = Instantiate (key, new Vector2(0, 20), Quaternion.identity);
 		instance.transform.SetParent (level);
-		instance = Instantiate (door, new Vector2(21, 0), Quaternion.identity);
-		instance.transform.SetParent (level);
+
+		SetDoors ();
 
 		instance = Instantiate (player, new Vector2 (columns / 2, rows / 2), Quaternion.identity);
 		instance.transform.SetParent (level);
 		Instantiate (tester, Vector2.zero, Quaternion.identity);
 
-		camera.transform.position = new Vector3 (columns / 2, rows / 2, -10.0f);
-		camera.GetComponent<Camera> ().orthographicSize = (columns/2) + 1.5f;
+
+		mainCamera.transform.position = new Vector3 (columns / 2, rows / 2, -10.0f);
+		mainCamera.GetComponent<Camera> ().orthographicSize = (columns/2) + 1.5f;
 	}
 
 	// Update is called once per frame

@@ -17,7 +17,10 @@ public class PlayerController : MonoBehaviour {
 
 	public LayerMask blockingLayer;
 
-	public bool moving;
+	private bool moving;
+	public bool exiting;
+
+	private Vector2 newPosition;
 
 	// Use this for initialization
 	void Start () 
@@ -27,12 +30,16 @@ public class PlayerController : MonoBehaviour {
 		nearSmell = null;
 		heldSmell = null;
 		door = null;
-		hasKey = false;
+		hasKey = true;
 		moving = false;
+		exiting = false;
+
+		newPosition = Vector2.zero;
 	}
 
 	void GetInput()
 	{
+		direction = Vector2.zero;
 		if (Input.GetKey ("up"))
 		{
 			direction.y	= 1;
@@ -50,74 +57,85 @@ public class PlayerController : MonoBehaviour {
 			direction.x = 1;
 		}
 	}
-	
-	void FixedUpdate () 
+
+	void FixedUpdate()
 	{
-		
+		if (moving) 
+		{
+			move ();
+		}
+	}
+	
+	void Update () 
+	{
 		if (!moving) 
 		{
 			GetInput ();
 
-			Vector2 halfSize = GetComponent<Renderer> ().bounds.size * 0.5f;
-
-			Vector2 newPosition = new Vector2 (rb2d.position.x + direction.x, rb2d.position.y + direction.y);
-
-			RaycastHit2D hit = Physics2D.Linecast (rb2d.position, newPosition, blockingLayer);
-
-			//Can optimize this. currently checking every frame, but it's only nessacary to check once before moving
-
-			if (hit.transform == null) 
+			if (direction.magnitude != 0)
 			{
-				if(direction.magnitude != 0)
+
+				newPosition = new Vector2 (rb2d.position.x + direction.x, rb2d.position.y + direction.y);
+
+				RaycastHit2D hit = Physics2D.Linecast (rb2d.position, newPosition, blockingLayer);
+
+				if (hit.transform == null) 
 				{
-					moving = true;
+					print ("0");
+					//if(direction.magnitude != 0)
+					{
+						print ("1");
+						moving = true;
+					}
 				}
-			}
-			else if (hit.transform.gameObject.CompareTag ("Door")) 
-			{
-				if (direction.x != 0) 
+				else if (hit.transform.gameObject.CompareTag ("Door")) 
+				{
+					print ("2");
+					/*if (direction.x != 0) 
 				{
 					rb2d.MovePosition (new Vector2 (Mathf.Round (rb2d.position.x), rb2d.position.y));
 				} 
 				else if (direction.y != 0) 
 				{
 					rb2d.MovePosition (new Vector2 (rb2d.position.x, Mathf.Round (rb2d.position.y)));
-				}
-			} 
-			else 
-			{
-				if (direction.x != 0) 
+				}*/
+				} 
+				else 
+				{
+					print ("3");
+					/*if (direction.x != 0) 
 				{
 					rb2d.MovePosition (new Vector2 (Mathf.Round (rb2d.position.x), rb2d.position.y));
 				} 
 				else if (direction.y != 0) 
 				{
 					rb2d.MovePosition (new Vector2 (rb2d.position.x, Mathf.Round (rb2d.position.y)));
+				}*/
 				}
 			}
+
+
 		}
 
-		if (moving) 
-		{
-			Vector2 velocity = direction * speed * Time.deltaTime;
 
-			rb2d.MovePosition (rb2d.position + velocity);
-		}
 	}
 
 	void LateUpdate()
 	{
-		if (rb2d.position.x > 20) //Not keeping this, just to test the snap function
+		if (moving) 
 		{
-			snapToPosition (new Vector2(22, rb2d.position.y));
-		}
-		else 
-		{
-			snapToPosition (rb2d.position);
+			snapToPosition (newPosition);
 		}
 	}
 
-	void snapToPosition(Vector2 position)
+	public void move()
+	{
+		Vector2 velocity = direction * speed * Time.deltaTime;
+
+		rb2d.MovePosition (rb2d.position + velocity);
+	}
+
+	public void snapToPosition(Vector2 position)
 	{
 		float snapDistance = 0.2f;
 		if (direction.x > 0)
@@ -164,7 +182,7 @@ public class PlayerController : MonoBehaviour {
 
 	void OnTriggerEnter2D(Collider2D other)
 	{
-		if (other.gameObject.CompareTag ("Smell")) 
+		if (other.gameObject.CompareTag ("Smell"))
 		{
 			//nearSmell = other.gameObject;
 			hasKey = true;
@@ -173,6 +191,10 @@ public class PlayerController : MonoBehaviour {
 		else if (other.gameObject.CompareTag ("Door")) 
 		{
 			door = other.gameObject;
+		}
+		else if (other.gameObject.CompareTag ("Exit")) 
+		{
+			exiting = true;
 		}
 			
 	}
@@ -185,5 +207,11 @@ public class PlayerController : MonoBehaviour {
 				door = null;
 			}
 		} 
+		else if (other.gameObject.CompareTag ("Exit")) 
+		{
+			exiting = false;
+			moving = false;
+			//snapToPosition (rb2d.position);
+		}
 	}
 }
