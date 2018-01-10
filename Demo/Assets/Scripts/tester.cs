@@ -61,18 +61,25 @@ public class tester : MonoBehaviour {
 		code.SetActive (false);
 		onOff = true;
 
-		Cull ();
+		Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
+			new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
 
 	}
 
-	void Cull()
+	void Cull(Vector2 min, Vector2 max)
 	{
+		float xMin = min.x;
+		float xMax = max.x;
+		float yMin = min.y;
+		float yMax = max.y;
+
 		foreach(Transform child in level.transform)
 		{
-			float xMin = levelCameraPosition.x - (mazeWidth / 2 + 1);
+			/*float xMin = levelCameraPosition.x - (mazeWidth / 2 + 1);
 			float xMax = levelCameraPosition.x + (mazeWidth / 2 + 1);
 			float yMin = levelCameraPosition.y - (mazeHeight / 2 + 1);
-			float yMax = levelCameraPosition.y + (mazeHeight / 2 + 1);
+			float yMax = levelCameraPosition.y + (mazeHeight / 2 + 1);*/
+
 			//	if (child.position.x >= -1 && child.position.x < 22 && child.position.y >= -1 && child.position.y < 22) 
 			if (child.position.x >= xMin
 				&& child.position.x <= xMax
@@ -128,6 +135,19 @@ public class tester : MonoBehaviour {
 					cameraTarget = new Vector3 (levelCameraPosition.x + (mazeWidth + 1) * player.direction.x,
 						levelCameraPosition.y + (mazeHeight + 1) * player.direction.y,
 						levelCameraPosition.z);
+
+					if (cameraTarget.x > levelCameraPosition.x || cameraTarget.y > levelCameraPosition.y) 
+					{
+						Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
+							new Vector2(cameraTarget.x + (mazeWidth / 2 + 1), cameraTarget.y + (mazeHeight / 2 + 1)));
+					}
+					else
+					{
+						Cull (new Vector2(cameraTarget.x - (mazeWidth / 2 + 1), cameraTarget.y - (mazeHeight / 2 + 1)),
+							new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
+					}
+
+				
 
 					player.enabled = false;
 					state = State.LEVEL_TRANSITION;
@@ -202,7 +222,8 @@ public class tester : MonoBehaviour {
 
 				door.SetActive (true);
 				door.tag = "Wall";
-				Cull ();
+				Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
+					new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
 			} 
 			else 
 			{
