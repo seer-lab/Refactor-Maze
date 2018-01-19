@@ -258,6 +258,7 @@ public class LevelCreate : MonoBehaviour {
 	//This function turns the maze into an imperfect maze, meaning that there are loops
 	void RemoveRandomWalls(List<Vector2> wallIndexes, Vector2 minBounds, Vector2 maxBounds)
 	{
+
 		for (int i = 0; i < columns/2; i++)
 		{
 			int index = Random.Range (0, wallIndexes.Count);

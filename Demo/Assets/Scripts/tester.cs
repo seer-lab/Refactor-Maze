@@ -123,6 +123,8 @@ public class tester : MonoBehaviour {
 			{
 				if (player.exiting) 
 				{
+					player.enabled = false;
+
 					codeObject.SetUp ("testlevel2");
 					player.exiting = false;
 					levelStart = new Vector2 (door.transform.position.x + player.direction.x, 
@@ -135,6 +137,9 @@ public class tester : MonoBehaviour {
 					cameraTarget = new Vector3 (levelCameraPosition.x + (mazeWidth + 1) * player.direction.x,
 						levelCameraPosition.y + (mazeHeight + 1) * player.direction.y,
 						levelCameraPosition.z);
+
+					door.tag = "Wall";
+
 
 					if (cameraTarget.x > levelCameraPosition.x || cameraTarget.y > levelCameraPosition.y) 
 					{
@@ -149,7 +154,6 @@ public class tester : MonoBehaviour {
 
 				
 
-					player.enabled = false;
 					state = State.LEVEL_TRANSITION;
 					transitionT = 0;
 				}
@@ -211,7 +215,6 @@ public class tester : MonoBehaviour {
 			{
 				levelTransitionTimer = 0.0f;
 				state = State.PLAYING;
-				player.enabled = true;
 				//Snap to correct position
 				player.transform.position = levelStart;
 
@@ -220,10 +223,12 @@ public class tester : MonoBehaviour {
 
 				levelCameraPosition = cameraTarget;
 
-				door.SetActive (true);
-				door.tag = "Wall";
+			//	door.SetActive (true);
+
 				Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
 					new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
+				player.enabled = true;
+
 			} 
 			else 
 			{
