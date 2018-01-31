@@ -48,6 +48,9 @@ public class LevelCreate : MonoBehaviour {
 
 	private List <Vector2> validPositions = new List<Vector2>();
 
+	private List <List<Vector2>> vPositions = new List<List<Vector2>>();
+
+
 	//private List <Vector2> paths = new List<Vector2>();
 	private List <Vector2> thePath = new List<Vector2>();
 
@@ -61,9 +64,18 @@ public class LevelCreate : MonoBehaviour {
 	private int width;
 	private int height;
 
-	//List <Vector2> wallIndexes = new List<Vector2>();
+	//Might scrap this method entirely, if not rework it drastically.
 	void InitialiseList ()
 	{
+		 List <List<Vector2>> test = new List<List<Vector2>>();
+
+		for (int i = 0; i < mazesX; i++) 
+		{
+			test.Add (new List<Vector2> ());
+		}
+
+		//This loop is currently going over points that should be walls and skipped
+		//Needs to be reworked
 		//Loop through x axis (columns).
 		for(int x = 0; x < columns + width; x++)
 		{
@@ -74,7 +86,7 @@ public class LevelCreate : MonoBehaviour {
 				//theTiles.Add(new Vector2(x, y), PASSABLE);
 				theTiles.Add(new Vector2(x, y), IMPASSABLE);
 
-				validPositions.Add(new Vector2(x, y));
+				validPositions.Add (new Vector2 (x, y));
 			}
 		}
 	}
@@ -111,7 +123,7 @@ public class LevelCreate : MonoBehaviour {
 
 	//RandomPosition returns a random position from our list gridPositions.
 	//This function is modified http://unity3d.com/learn/tutorials/projects/2d-roguelike
-	Vector3 RandomPosition ()
+/*	Vector3 RandomPosition ()
 	{
 		int randomIndex = Random.Range (0, validPositions.Count);
 		Vector3 randomPosition = validPositions[randomIndex];
@@ -122,9 +134,25 @@ public class LevelCreate : MonoBehaviour {
 
 		//Return the randomly selected Vector3 position.
 		return randomPosition;
+	}*/
+
+	//RandomPosition returns a random position from our list gridPositions.
+	//This function is modified http://unity3d.com/learn/tutorials/projects/2d-roguelike
+	Vector3 RandomPosition (int currentLevel)
+	{
+		int randomIndex = Random.Range (0, vPositions[currentLevel].Count);
+		Vector3 randomPosition = vPositions[currentLevel][randomIndex];
+		//Remove the entry at randomIndex from the list so that it can't be re-used.
+		vPositions[currentLevel].RemoveAt (randomIndex);
+
+		theTiles[new Vector2(randomPosition.x, randomPosition.y)] = OCCUPIED;
+
+		//Return the randomly selected Vector3 position.
+		return randomPosition;
 	}
+
 	 //still need to remove wall tiles from list of valid positions
-	void BackTracker(Vector2 minBounds, Vector2 maxBounds)
+	void BackTracker(Vector2 minBounds, Vector2 maxBounds, int currentLevel)
 	{
 		int unvisitedCells = 0;
 
@@ -140,11 +168,14 @@ public class LevelCreate : MonoBehaviour {
 	
 		List <Vector2> wallIndexes = new List<Vector2>();
 
+		vPositions.Add (new List<Vector2> ());
+
 		for (int x = (int)minBounds.x; x < maxBounds.x; x++) 
 		{
 			for (int y = (int)minBounds.y; y < maxBounds.y; y++) 
 			{
 				wallIndexes.Add (new Vector2 (x, y));
+				vPositions [currentLevel].Add (new Vector2 (x, y));
 			}
 		}
 			
@@ -190,7 +221,7 @@ public class LevelCreate : MonoBehaviour {
 
 		RemoveRandomWalls(wallIndexes, minBounds, maxBounds);
 
-		SetWalls (wallIndexes);
+		SetWalls (wallIndexes, currentLevel);
 
 		visitedCells.Clear ();
 	}
@@ -258,7 +289,6 @@ public class LevelCreate : MonoBehaviour {
 	//This function turns the maze into an imperfect maze, meaning that there are loops
 	void RemoveRandomWalls(List<Vector2> wallIndexes, Vector2 minBounds, Vector2 maxBounds)
 	{
-
 		for (int i = 0; i < columns/2; i++)
 		{
 			int index = Random.Range (0, wallIndexes.Count);
@@ -291,13 +321,14 @@ public class LevelCreate : MonoBehaviour {
 	}
 
 	//Set walls for all the remaining wall indexes
-	void SetWalls(List<Vector2> wallIndexes)
+	void SetWalls(List<Vector2> wallIndexes, int currentLevel)
 	{
 		for (int i = 0; i < wallIndexes.Count; i++)
 		{
 			GameObject instance = Instantiate(wallTiles, wallIndexes [i], Quaternion.identity);
 			instance.transform.SetParent (level);
 			validPositions.Remove (wallIndexes [i]);
+			vPositions [currentLevel].Remove (wallIndexes [i]);
 		} 
 	}
 
@@ -308,19 +339,17 @@ public class LevelCreate : MonoBehaviour {
 		Destroy (outerWalls [instance.transform.position]);
 		outerWalls.Remove (instance.transform.position);
 
-		GameObject testObject = new GameObject("HEY");
-		testObject.tag = "Exit";
-		BoxCollider2D bc = testObject.AddComponent (typeof(BoxCollider2D)) as BoxCollider2D;
+		GameObject exitObject = new GameObject("Exit");
+		exitObject.tag = "Exit";
+		BoxCollider2D bc = exitObject.AddComponent (typeof(BoxCollider2D)) as BoxCollider2D;
 		bc.isTrigger = true;
 		bc.size = new Vector2 (0.9f, 0.9f);
 
-		testObject.transform.position = instance.transform.position;
+		exitObject.transform.position = instance.transform.position;
 	}
 
 	void SetDoors()
 	{
-		
-
 		int x = 1;
 		int y = 0;
 		bool right = true;
@@ -388,22 +417,25 @@ public class LevelCreate : MonoBehaviour {
 		InitialiseList ();
 		BoardSetup ();
 
-	//	SetWalls (10);
+		GameObject instance;
 		//need to rework this
+		int currentLevel = 0;
 		for (int i = 0; i < mazesX; i++) 
 		{
 			for (int c = 0; c < mazesY; c++) 
 			{
 				BackTracker(new Vector2(i * (columns + 1), c * (rows + 1)), 
-					new Vector2(columns + (columns + 1) * i, rows + (rows + 1) * c));
+					new Vector2(columns + (columns + 1) * i, rows + (rows + 1) * c), currentLevel);
+				instance = Instantiate (key, RandomPosition (currentLevel), Quaternion.identity);
+				currentLevel++;
+				instance.transform.SetParent (level);
+
 			}
 		}
-
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
 		//Instantiate (key, RandomPosition (), Quaternion.identity);
 
-		GameObject instance  = Instantiate (key, new Vector2(0, 20), Quaternion.identity);
-		instance.transform.SetParent (level);
+		//instance = Instantiate (key, new Vector2(0, 20), Quaternion.identity);
 
 		SetDoors ();
 

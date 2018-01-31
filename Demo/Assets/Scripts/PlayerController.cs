@@ -71,53 +71,18 @@ public class PlayerController : MonoBehaviour {
 		if (!moving) 
 		{
 			GetInput ();
-
 			if (direction.magnitude != 0)
 			{
-
 				newPosition = new Vector2 (rb2d.position.x + direction.x, rb2d.position.y + direction.y);
 
 				RaycastHit2D hit = Physics2D.Linecast (rb2d.position, newPosition, blockingLayer);
 
 				if (hit.transform == null) 
 				{
-					print ("0");
-					//if(direction.magnitude != 0)
-					{
-						print ("1");
-						moving = true;
-					}
-				}
-				else if (hit.transform.gameObject.CompareTag ("Door")) 
-				{
-					print ("2");
-					/*if (direction.x != 0) 
-				{
-					rb2d.MovePosition (new Vector2 (Mathf.Round (rb2d.position.x), rb2d.position.y));
-				} 
-				else if (direction.y != 0) 
-				{
-					rb2d.MovePosition (new Vector2 (rb2d.position.x, Mathf.Round (rb2d.position.y)));
-				}*/
-				} 
-				else 
-				{
-					print ("3");
-					/*if (direction.x != 0) 
-				{
-					rb2d.MovePosition (new Vector2 (Mathf.Round (rb2d.position.x), rb2d.position.y));
-				} 
-				else if (direction.y != 0) 
-				{
-					rb2d.MovePosition (new Vector2 (rb2d.position.x, Mathf.Round (rb2d.position.y)));
-				}*/
+					moving = true;
 				}
 			}
-
-
 		}
-
-
 	}
 
 	void LateUpdate()

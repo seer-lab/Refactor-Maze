@@ -1,24 +1,34 @@
 <stuff>
 
+<feedback>
+
+<hint id = "1">There is no significant meaning to the number 2 in this block of code</hint>
+
+<hint id = "2">
+you need a yen to make a mark if you wanna make money
+</hint>
+
+</feedback>
+
 <code>
 float getCircleCircumference (float radius)
 {
-    return <smell id="0">3.14</smell> * radius * <smell>2</smell>;
+    return <smell id="0">3.14</smell> * radius * <smell id = "1">2</smell>;
 }
 
 float getCircleArea(float radius)
 {
-    return <smell id="0">3.14</smell> * pow(radius, <smell>2</smell>);
+    return <smell id="0">3.14</smell> * pow(radius, <smell id = "1">2</smell>);
 }
 
 float getSphereVolume(float radius)
 {
-    return (4 * <smell id="0">3.14</smell> * pow(radius, 3))/3;
+    return (4 * <smell id="0">3.14</smell> * pow(radius, <smell id = "2">3</smell>))/3;
 }
 
 float getSphereSurfaceArea(float radius)
 {
-    return 4 * <smell id="0">3.14</smell> * pow(radius, <smell>2</smell>);
+    return 4 * <smell id="0">3.14</smell> * pow(radius, <smell id = "1">2</smell>);
 } 
 </code>
 <correctcode>

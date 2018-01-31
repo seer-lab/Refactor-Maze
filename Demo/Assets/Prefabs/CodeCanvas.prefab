@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222178538609718506}
   - component: {fileID: 114906177304114772}
   - component: {fileID: 114810754019141798}
+  - component: {fileID: 114679158962989520}
   m_Layer: 0
   m_Name: Code
   m_TagString: Untagged
@@ -132,6 +133,20 @@ MonoBehaviour:
   m_InputActionsPerSecond: 10
   m_RepeatDelay: 0.5
   m_ForceModuleActive: 0
+--- !u!114 &114679158962989520
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1083781642504242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -900027084, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!114 &114681664654497544
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -159,6 +174,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textComponent: {fileID: 0}
   mainCamera: {fileID: 0}
+  borderSprite: {fileID: 21300000, guid: f5245898faed1ff4dbbbd4cb45025e0c, type: 3}
   ClickableWords:
   - 2
   - 3.14
@@ -184,10 +200,10 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 28
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 1
     m_MaxSize: 40
     m_Alignment: 0
     m_AlignByGeometry: 0

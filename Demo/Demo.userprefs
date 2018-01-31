@@ -1,20 +1,16 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\tester.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\TextTester.cs">
     <Files>
-      <File FileName="Assets\Scripts\tester.cs" Line="142" Column="6" />
-      <File FileName="Assets\Scripts\testlevel.xml" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\test.xml" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\test4.xml" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\test5.xml" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\TextTester.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PlayerController.cs" Line="193" Column="1" />
+      <File FileName="Assets\Scripts\TextTester.cs" Line="302" Column="6" />
+      <File FileName="Assets\Scripts\test4.xml" Line="21" Column="10" />
+      <File FileName="Assets\Scripts\testlevel.xml" Line="2" Column="12" />
+      <File FileName="Assets\Scripts\test.xml" Line="17" Column="2" />
+      <File FileName="Assets\Scripts\tester.cs" Line="139" Column="15" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="C:\Users\Damon\Documents\GitHub\Refactor-Maze\Demo\Assets\Scripts\PlayerController.cs" line="193" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

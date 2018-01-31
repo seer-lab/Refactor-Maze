@@ -47,8 +47,12 @@ public class tester : MonoBehaviour {
 
 		code = GameObject.Find ("CodeLevel");
 
+		//Need to scale the transform down a bit to prevent the text from looking blurry on bigger screens
+		code.transform.localScale =new Vector3 (0.5f, 0.5f, 1.0f);
+
 		codeObject = (TextTester)GameObject.Find("Code").GetComponent (typeof(TextTester));
 
+		codeObject.SetUp("testlevel");
 
 		player = (PlayerController)GameObject.FindGameObjectWithTag("Player").GetComponent(typeof(PlayerController));
 
@@ -75,12 +79,6 @@ public class tester : MonoBehaviour {
 
 		foreach(Transform child in level.transform)
 		{
-			/*float xMin = levelCameraPosition.x - (mazeWidth / 2 + 1);
-			float xMax = levelCameraPosition.x + (mazeWidth / 2 + 1);
-			float yMin = levelCameraPosition.y - (mazeHeight / 2 + 1);
-			float yMax = levelCameraPosition.y + (mazeHeight / 2 + 1);*/
-
-			//	if (child.position.x >= -1 && child.position.x < 22 && child.position.y >= -1 && child.position.y < 22) 
 			if (child.position.x >= xMin
 				&& child.position.x <= xMax
 				&& child.position.y >= yMin
@@ -94,18 +92,7 @@ public class tester : MonoBehaviour {
 			}
 		}
 	}
-
-	void FixedUpdate()
-	{
-		switch (state)
-		{
-		case State.PLAYING:
-			break;
-		case State.LEVEL_TRANSITION:
-		//	player.move ();
-			break;
-		}
-	}
+		
 	
 	// Update is called once per frame
 	void Update () 
@@ -130,8 +117,6 @@ public class tester : MonoBehaviour {
 					levelStart = new Vector2 (door.transform.position.x + player.direction.x, 
 						door.transform.position.y + player.direction.y);
 				
-					//levelExit = new Vector2(Mathf.Floor(player.transform.position.x),
-					//	Mathf.Floor(player.transform.position.y));
 					levelExit = player.transform.position;
 
 					cameraTarget = new Vector3 (levelCameraPosition.x + (mazeWidth + 1) * player.direction.x,
@@ -151,8 +136,8 @@ public class tester : MonoBehaviour {
 						Cull (new Vector2(cameraTarget.x - (mazeWidth / 2 + 1), cameraTarget.y - (mazeHeight / 2 + 1)),
 							new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
 					}
-
-				
+					 //hopefully temporary, 
+					door.SetActive (false);
 
 					state = State.LEVEL_TRANSITION;
 					transitionT = 0;
@@ -182,29 +167,32 @@ public class tester : MonoBehaviour {
 			} 
 			else 
 			{
-				if (codeObject.state != TextTester.State.SELECTING && codeObject.state != TextTester.State.LOOKING) 
+				if (codeObject.state == TextTester.State.CORRECT) 
 				{
 					transitionTimer += Time.deltaTime;
 					//appropriate messages will be handled by code class
 					if (transitionTimer >= transitionTime) 
 					{
 						transitionTimer = 0.0f;
-						if (codeObject.state == TextTester.State.CORRECT) 
-						{
-							if (door != null) 
-							{ 
-								door.SetActive (false);
 
-							}
+						if (door != null) 
+						{ 
+							door.SetActive (false);
 						}
-						else if (codeObject.state == TextTester.State.INCORRECT) 
-						{
-							codeObject.nextBlock ();	
-						}
+						
 						switchMode ();
 					}
 
 				}
+				else if(codeObject.state == TextTester.State.INCORRECT)
+				{
+					if (Input.anyKeyDown)
+					{
+						codeObject.nextBlock ();	
+						switchMode ();
+
+					}
+				}	
 			}
 			break;
 		case State.LEVEL_TRANSITION:
