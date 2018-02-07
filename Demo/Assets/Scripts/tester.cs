@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using UnityEngine.UI;
+using System.Xml;
+
 public class tester : MonoBehaviour {
 
 	public bool onOff;
 	public GameObject level;
 	public GameObject code;
+	public GameObject display;
 	public PlayerController player;
 
 	GameObject door;
@@ -33,8 +37,24 @@ public class tester : MonoBehaviour {
 	private int mazeWidth;
 	private int mazeHeight;
 
+	private int currentBlock;
+	private int numberOfBlocks;
+
 	public enum State{PLAYING, LEVEL_TRANSITION};
 	public State state;
+
+	private List<string> displayCodeBlocks = new List<string>();
+	private List<string> correctCode = new List<string> ();
+	private List<XmlNode> smellyCode = new List<XmlNode> ();
+
+	public Sprite borderSprite;
+
+	private Text displayText;
+	private Text interactText;
+
+	private Transform boxHolder; // make the visual boxes easier to manage
+
+	private GameObject textBox ;
 
 	// Use this for initialization
 	void Start () 
@@ -52,6 +72,8 @@ public class tester : MonoBehaviour {
 
 		codeObject = (TextTester)GameObject.Find("Code").GetComponent (typeof(TextTester));
 
+		interactText = (Text)codeObject.GetComponent (typeof(Text));
+
 		codeObject.SetUp("testlevel");
 
 		player = (PlayerController)GameObject.FindGameObjectWithTag("Player").GetComponent(typeof(PlayerController));
@@ -68,6 +90,142 @@ public class tester : MonoBehaviour {
 		Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
 			new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
 
+		display = GameObject.Find ("Display");
+
+		XmlDocument doc = new XmlDocument();
+		doc.Load ("Assets/Scripts/test6.xml");
+
+		XmlNode levelnode =  doc.DocumentElement.SelectSingleNode("/code");
+		foreach (XmlNode node in levelnode.ChildNodes) 
+		{
+			foreach (XmlNode blockNode in node.ChildNodes) 
+			{
+				if (blockNode.Name == "smellcode")
+				{
+					displayCodeBlocks.Add (blockNode.InnerText);
+					smellyCode.Add (blockNode);
+				} 
+				else if (blockNode.Name == "correctcode") 
+				{
+					correctCode.Add (blockNode.InnerText);
+				}
+
+			}
+		}
+		numberOfBlocks = smellyCode.Count;
+
+
+		displayText = GameObject.Find ("DisplayText").GetComponent<Text>();
+		displayText.text = "";
+		int start = Random.Range (0, displayCodeBlocks.Count);
+		start = 0;
+		updateDisplay ();
+
+		codeObject.getBoxes (smellyCode [start]);
+
+		drawBoxes ();
+	}
+
+	private void updateDisplay()
+	{
+		displayText.text = "";
+		for (int i = 0; i < displayCodeBlocks.Count; i++) 
+		{
+			if (i == currentBlock) 
+			{
+				displayText.text += "<b>";
+				displayText.text += displayCodeBlocks [i];
+				displayText.text += "</b>";
+
+			}
+			else 
+			{
+				displayText.text += displayCodeBlocks [i];
+
+			}
+		}
+	}
+
+	void drawBoxes()
+	{
+		Vector2 minBound = Vector2.zero;
+		Vector2 maxBound = Vector2.zero;
+
+		getTextBounds (ref minBound, ref maxBound, ref displayText);
+
+		Vector2 bRight = new Vector2 (maxBound.x + 1, minBound.y - 1);
+		Vector2 uLeft = new Vector2 (minBound.x - 1, maxBound.y + 1);
+
+		Vector2 size = bRight - uLeft;
+		Rect newRectangle = new Rect (uLeft, size);
+
+		GameObject.Destroy (textBox);
+
+		textBox = new GameObject("textBox");
+		textBox.tag = "Exit";
+		SpriteRenderer renderer = textBox.AddComponent <SpriteRenderer>();
+		renderer.sprite = borderSprite;
+		renderer.drawMode = SpriteDrawMode.Sliced;
+
+		renderer.size = new Vector2 (newRectangle.width, newRectangle.height);;
+
+		textBox.transform.position = new Vector2(uLeft.x + newRectangle.width * 0.5f, uLeft.y + newRectangle.height * 0.5f); //center the box
+
+		textBox.transform.SetParent (displayText.transform);
+	}
+
+	private void getTextBounds(ref Vector2 minBound, ref Vector2 maxBound, ref Text textComponent )
+	{
+		string text = textComponent.text;
+
+		TextGenerator generator;
+
+		generator = new TextGenerator (textComponent.text.Length);
+		Vector2 extents = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
+		generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
+
+		//TODO need to take into account empty characters
+		//Calculate bounds of the first character
+		int startI = 0;
+		Vector2 upperLeft = new Vector2 (generator.verts [startI * 4].position.x, generator.verts [startI * 4].position.y);
+		Vector2 bottomright = new Vector2 (generator.verts [startI * 4 + 2].position.x, generator.verts [startI * 4 + 2].position.y);
+
+		Vector3 uleft = textComponent.transform.TransformPoint (upperLeft);
+		Vector3 bright = textComponent.transform.TransformPoint (bottomright);
+
+		minBound = new Vector2 (uleft.x, bright.y);
+		maxBound = new Vector2 (bright.x, uleft.y);
+
+		//Loop through the rest of the characters to find the minimum and maximum bounds of the block
+		//This could probably be optimized a bit(only check min and max y on the first and last line, check x max on new line)
+		for (int i = startI; i < text.Length; i++) 
+		{
+			upperLeft = new Vector2 (generator.verts [i * 4].position.x, generator.verts [i * 4].position.y);
+			bottomright = new Vector2 (generator.verts [i * 4 + 2].position.x, generator.verts [i * 4 + 2].position.y);
+
+			uleft = textComponent.transform.TransformPoint (upperLeft);
+			bright = textComponent.transform.TransformPoint (bottomright);
+
+			if (uleft.y > maxBound.y) 
+			{
+				maxBound.y = uleft.y;
+			}
+
+			if (uleft.x < minBound.x) 
+			{
+				minBound.x = uleft.x;
+			}
+
+			if (bright.y < minBound.y) 
+			{
+				minBound.y = bright.y;
+			}
+
+			if (bright.x > maxBound.x) 
+			{
+				maxBound.x = bright.x;
+			}	
+		}
 	}
 
 	void Cull(Vector2 min, Vector2 max)
@@ -93,6 +251,17 @@ public class tester : MonoBehaviour {
 		}
 	}
 		
+	public void nextBlock()
+	{
+		currentBlock++;
+		if (currentBlock == numberOfBlocks)
+		{
+			currentBlock = 0;
+			//shuffleCodeBlocks ();
+		}
+		codeObject.getBoxes (smellyCode[currentBlock]);
+		updateDisplay ();
+	}
 	
 	// Update is called once per frame
 	void Update () 
@@ -148,7 +317,6 @@ public class tester : MonoBehaviour {
 					{
 						if (player.door != null) 
 						{ 
-
 							door = player.door;
 							switchMode ();
 							if (player.hasKey)
@@ -162,6 +330,15 @@ public class tester : MonoBehaviour {
 							}
 						}
 					}
+					Vector3 displayPosition = display.transform.position;
+					if (Input.GetKey ("w"))
+					{
+						display.transform.position = new Vector3 (displayPosition.x, displayPosition.y + 1, displayPosition.z);
+					} 
+					else if (Input.GetKey ("s"))
+					{
+						display.transform.position = new Vector3 (displayPosition.x, displayPosition.y - 1, displayPosition.z);
+					} 
 				}
 
 			} 
@@ -169,6 +346,8 @@ public class tester : MonoBehaviour {
 			{
 				if (codeObject.state == TextTester.State.CORRECT) 
 				{
+					interactText.text = correctCode [currentBlock]; //move this somewhere else I don't want it going every frame
+
 					transitionTimer += Time.deltaTime;
 					//appropriate messages will be handled by code class
 					if (transitionTimer >= transitionTime) 
@@ -179,7 +358,10 @@ public class tester : MonoBehaviour {
 						{ 
 							door.SetActive (false);
 						}
-						
+						displayCodeBlocks [currentBlock] = correctCode [currentBlock];
+						nextBlock ();
+						drawBoxes ();
+						//updateDisplay ();
 						switchMode ();
 					}
 
@@ -188,7 +370,8 @@ public class tester : MonoBehaviour {
 				{
 					if (Input.anyKeyDown)
 					{
-						codeObject.nextBlock ();	
+					//	codeObject.nextBlock ();	
+						nextBlock();
 						switchMode ();
 
 					}
@@ -232,6 +415,7 @@ public class tester : MonoBehaviour {
 	{
 		onOff = !onOff;
 		level.SetActive (onOff);
+		display.SetActive (onOff);
 		code.SetActive (!onOff);
 		if (code.active) 
 		{

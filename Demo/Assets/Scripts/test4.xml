@@ -16,11 +16,11 @@ void PrintCustomerDetails()
 	{
 		totalCost += items[i].cost;
 	}
-		
+							
 	float average = totalCost / items[i].size();</smell>
-	        
-	<smell id = "1">
-	std::cout &lt;&lt; customerName &lt;&lt; std::endl;
+<newline/>
+<newline/>
+	<smell id = "1">	std::cout &lt;&lt; customerName &lt;&lt; std::endl;
 	std::cout &lt;&lt; "Average:" &lt;&lt; average &lt;&lt; std::endl;</smell>
 }
 </code>

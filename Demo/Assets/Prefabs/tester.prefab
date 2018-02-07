@@ -53,3 +53,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onOff: 0
   level: {fileID: 0}
+  code: {fileID: 0}
+  display: {fileID: 0}
+  player: {fileID: 0}
+  codeObject: {fileID: 0}
+  mainCamera: {fileID: 0}
+  levelCameraPosition: {x: 0, y: 0, z: 0}
+  levelStart: {x: 0, y: 0}
+  levelExit: {x: 0, y: 0}
+  state: 0
+  borderSprite: {fileID: 21300000, guid: f5245898faed1ff4dbbbd4cb45025e0c, type: 3}

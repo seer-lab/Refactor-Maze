@@ -1,0 +1,107 @@
+﻿<code>
+
+<block id = "1">
+
+<feedback>
+
+<hint id = "1">There is no significant meaning to the number 2 in this block of code</hint>
+
+<hint id = "2">
+you need a yen to make a mark if you wanna make money
+</hint>
+
+</feedback>
+
+<smellcode>
+float getCircleCircumference (float radius)
+{
+    return <smell id="0">3.14</smell> * radius * <smell id = "1">2</smell>;
+}
+
+float getCircleArea(float radius)
+{
+    return <smell id="0">3.14</smell> * pow(radius, <smell id = "1">2</smell>);
+}
+
+float getSphereVolume(float radius)
+{
+    return (4 * <smell id="0">3.14</smell> * pow(radius, <smell id = "2">3</smell>))/3;
+}
+
+float getSphereSurfaceArea(float radius)
+{
+    return 4 * <smell id="0">3.14</smell> * pow(radius, <smell id = "1">2</smell>);
+} 
+</smellcode>
+<correctcode>
+float getCircleCircumference (float radius)
+{
+    return pi * radius * 2;
+}
+
+float getCircleArea(float radius)
+{
+    return pi * pow(radius, 2);
+}
+
+float getSphereVolume(float radius)
+{
+    return (4 * pi * pow(radius, 3))/3;
+}
+
+float getSphereSurfaceArea(float radius)
+{
+    return 4 * pi * pow(radius, 2);
+} 
+</correctcode>
+
+</block>
+
+<block id = "2">
+
+<feedback>
+
+<hint id = "1">Just filling space
+space space space
+space</hint>
+
+</feedback>
+
+<smellcode>
+void PrintCustomerDetails()
+{
+	<smell id = "0">float totalCost = 0;
+	for(int i = 0; i &lt; items[i].size(); i ++)
+	{
+		totalCost += items[i].cost;
+	}
+							
+	float average = totalCost / items[i].size();</smell>
+<newline/>
+<newline/>
+	<smell id = "1">	std::cout &lt;&lt; customerName &lt;&lt; std::endl;
+	std::cout &lt;&lt; "Average:" &lt;&lt; average &lt;&lt; std::endl;</smell>
+}
+</smellcode>
+
+<correctcode>
+float GetAverageCost()
+{
+	float totalCost = 0;
+	for(int i = 0; i &lt; items[i].size(); i ++)
+	{
+		totalCost += items[i].cost;
+	}
+
+	return totalCost / items[i].size();
+}
+void PrintCustomerDetails()
+{
+	std::cout &lt;&lt; customerName &lt;&lt; std::endl;
+	std::cout &lt;&lt; "Average:" &lt;&lt; GetAverageCost &lt;&lt; std::endl;
+}
+</correctcode>
+
+</block>
+
+</code>

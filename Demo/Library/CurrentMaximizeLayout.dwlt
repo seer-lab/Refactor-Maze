@@ -23,7 +23,7 @@ MonoBehaviour:
   m_MinSize: {x: 683, y: 492}
   m_MaxSize: {x: 14004, y: 14042}
   vertical: 0
-  controlID: 19135
+  controlID: 726
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -50,7 +50,7 @@ MonoBehaviour:
     y: 92
     width: 873
     height: 288
-  m_MaximizeOnPlay: 0
+  m_MaximizeOnPlay: 1
   m_Gizmos: 0
   m_Stats: 0
   m_SelectedSizes: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -70,7 +70,7 @@ MonoBehaviour:
     m_HSlider: 0
     m_VSlider: 0
     m_IgnoreScrollWheelUntilClicked: 0
-    m_EnableMouseInput: 0
+    m_EnableMouseInput: 1
     m_EnableSliderZoom: 0
     m_UniformScale: 1
     m_UpDirection: 1
@@ -123,7 +123,7 @@ MonoBehaviour:
   m_MinSize: {x: 202, y: 442}
   m_MaxSize: {x: 4002, y: 8042}
   vertical: 1
-  controlID: 19136
+  controlID: 692
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -142,8 +142,8 @@ MonoBehaviour:
     y: 0
     width: 875
     height: 309
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 2}
   m_Panes:
   - {fileID: 2}
@@ -202,14 +202,14 @@ MonoBehaviour:
     width: 873
     height: 305
   m_SceneLighting: 1
-  lastFramingTime: 172004.25250913232
+  lastFramingTime: 1634.3243151988763
   m_2DMode: 1
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 10, y: -13.06794, z: -10}
+    m_Target: {x: 0, y: 0, z: 0}
     speed: 2
-    m_Value: {x: 10, y: -13.06794, z: -10}
+    m_Value: {x: 0, y: 0, z: 0}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -236,9 +236,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 48.496433
+    m_Target: 233.34525
     speed: 2
-    m_Value: 48.496433
+    m_Value: 233.34525
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -305,7 +305,7 @@ MonoBehaviour:
   m_MinSize: {x: 481, y: 492}
   m_MaxSize: {x: 10002, y: 14042}
   vertical: 1
-  controlID: 18981
+  controlID: 727
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_MinSize: {x: 481, y: 221}
   m_MaxSize: {x: 8006, y: 4021}
   vertical: 0
-  controlID: 18982
+  controlID: 713
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -443,7 +443,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 5c98e2ff6098e2ffcee3e2ffd2e3e2ff1e25e3ff2225e3ff20d0e3ff2ad0e3ff2ed0e3ff2a54e5ff2e54e5ff269ee5ff309ee5ff349ee5ff8ae3e6ff8ee3e6ff2613e7ffec8ce7fff08ce7ffc4a0e8ff6c1ae9ffe842e9fff242e9fff642e9ffbc20eaffc020eaffae5fecff2a88ecff3488ecff3888ecff9ebcecff8c6eedff906eedff36c0edffb0e8edffbae8edffbee8edffb69aeeff30c3eeff3ac3eeff3ec3eeff0ad2eeff84faeeff8efaeeff92faeeff8411effffe39efff083aefff0c3aeffffc4aefff7673efff8073efff8473efffe87cefff62a5efff6ca5efff70a5efff908af1ff9a8af1ff9e8af1ff24c1f1ff28c1f1ff0aeef1ff8e16f2ff9216f2ff147af2ff1e7af2ff227af2ff8666f6ff8a66f6ffd4d0f8ff4ef9f8ff58f9f8ff5cf9f8ff901ef9ff0a47f9ff1447f9ff1847f9ffe450f9ff5e79f9ff6879f9ff6c79f9ff9096f9ff0abff9ff14bff9ff18bff9ffcee6f9ff480ffaff520ffaff560ffaff942efbff982efbfff27ffbfffc7ffbff0080fbff409dfcff4a9dfcff4e9dfcff74b6fdff80e2fdff8ae2fdff8ee2fdff4033feff4a33feff4e33feffa681feffaa81fefffa21ffff646affff406fffff6a79ffff82b2ffff58f3ffff1afcffff0000000084260000
+    m_ExpandedIDs: 241dffffe21dfffffe1effffe289ffffa28affffb28bffff1afaffff00000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -540,9 +540,9 @@ MonoBehaviour:
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 2c260000
-    m_LastClickedID: 9772
-    m_ExpandedIDs: 000000001a26000000ca9a3bffffff7f
+    m_SelectedIDs: f2290000
+    m_LastClickedID: 10738
+    m_ExpandedIDs: 00000000ec29000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -570,7 +570,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000001a26000000ca9a3bffffff7f
+    m_ExpandedIDs: 00000000ec29000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

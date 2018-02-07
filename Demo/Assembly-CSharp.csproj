@@ -61,6 +61,7 @@
      <None Include="Assets\Scripts\test2.xml" />
      <None Include="Assets\Scripts\test5.xml" />
      <None Include="Assets\Scripts\test3.xml" />
+     <None Include="Assets\Scripts\test6.xml" />
      <None Include="Assets\Scripts\testlevel.xml" />
      <None Include="Assets\Scripts\testlevel2.xml" />
      <None Include="Assets\Scripts\test4.xml" />

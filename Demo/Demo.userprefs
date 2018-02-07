@@ -1,12 +1,11 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\TextTester.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\test6.xml">
     <Files>
-      <File FileName="Assets\Scripts\TextTester.cs" Line="302" Column="6" />
-      <File FileName="Assets\Scripts\test4.xml" Line="21" Column="10" />
-      <File FileName="Assets\Scripts\testlevel.xml" Line="2" Column="12" />
-      <File FileName="Assets\Scripts\test.xml" Line="17" Column="2" />
-      <File FileName="Assets\Scripts\tester.cs" Line="139" Column="15" />
+      <File FileName="Assets\Scripts\TextTester.cs" Line="79" Column="1" />
+      <File FileName="Assets\Scripts\tester.cs" Line="162" Column="32" />
+      <File FileName="Assets\Scripts\test6.xml" Line="57" Column="1" />
+      <File FileName="Assets\Scripts\PlayerController.cs" Line="85" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

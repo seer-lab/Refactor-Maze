@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-using UnityEditor;
+//using UnityEditor;
 using System.Xml;
 
 public class TextTester : MonoBehaviour 
@@ -191,6 +191,37 @@ public class TextTester : MonoBehaviour
 			
 		addRectangles (getID (node), minBound, maxBound);
 	}
+
+	public void getBoxes(XmlNode levelnode)
+	{
+		setUpBoxes ();
+		foreach (XmlNode node in levelnode.ChildNodes) 
+		{
+			textComponent.text += node.InnerText;
+			//print (node.InnerText);
+			if (node.Name == "smell")
+			{
+				getCodeBounds (node);
+			}
+			else if (node.Name == "newline")
+			{
+				textComponent.text += "\n";
+			}
+		}
+
+		drawBoxes ();
+		//using this for lower bounds it's gross
+		TextGenerator g;
+
+		g = new TextGenerator (textComponent.text.Length);
+		Vector2 e = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
+		g.Populate (textComponent.text, textComponent.GetGenerationSettings (e));
+
+		int what = textComponent.text.Length;
+		Vector2 r = new Vector2 (g.verts [what * 4 + 2].position.x, g.verts [what * 4 + 2].position.y);
+
+		bottom = textComponent.transform.TransformPoint (r).y;
+	}
 		
 	private void getBoxes()
 	{
@@ -207,6 +238,10 @@ public class TextTester : MonoBehaviour
 			if (node.Name == "smell")
 			{
 				getCodeBounds (node);
+			}
+			else if (node.Name == "newline")
+			{
+				textComponent.text += "\n";
 			}
 		}
 	
@@ -236,12 +271,6 @@ public class TextTester : MonoBehaviour
 				Vector2 b = new Vector3 (rectangle.x + rectangle.width, rectangle.y);
 				Vector2 c = new Vector3 (rectangle.x, rectangle.y + rectangle.height);
 				Vector2 d = new Vector3 (rectangle.x + rectangle.width, rectangle.y + rectangle.height);
-
-			
-				Debug.DrawLine (a, b, Color.blue, 50f);
-				Debug.DrawLine (b, d, Color.blue, 50f);
-				Debug.DrawLine (d, c, Color.blue, 50f);
-				Debug.DrawLine (c, a, Color.blue, 50f);
 
 
 				GameObject smellBox = new GameObject("test");
@@ -273,17 +302,12 @@ public class TextTester : MonoBehaviour
 
 	public void SetUp(string level)
 	{
-		startLevel (level);
+	//	startLevel (level);
 		shuffleCodeBlocks ();
 
-		//For testing
-		for (int i = 0; i < codeBlocks.Count; i++) 
-		{
-			print (codeBlocks [i]);
-		}
 		textComponent = GetComponent<Text> ();
 		mainCamera = Camera.main;
-		getBoxes ();
+	//	getBoxes ();
 	}
 
 	private void Start() 
@@ -311,14 +335,14 @@ public class TextTester : MonoBehaviour
 						{
 							if (entry.Key == 0)
 							{ //temp
-								textComponent.text = correctCode;
+								//textComponent.text = correctCode;
 								destroyBoxes ();
 								state = State.CORRECT;
 								break;
 							} 
 							else 
 							{
-								XmlDocument doc = getCurrentLevel ();
+				/*				XmlDocument doc = getCurrentLevel ();
 								XmlNode feedbackNode =  doc.DocumentElement.SelectSingleNode("/stuff/feedback");
 								if (feedbackNode != null)
 								{
@@ -355,7 +379,6 @@ public class TextTester : MonoBehaviour
 												hintBox.transform.position = new Vector2(uLeft.x + newRectangle.width * 0.5f, uLeft.y + newRectangle.height * 0.5f); //center the box
 
 												hintBox.transform.SetParent (boxHolder);
-												print(mainCamera.WorldToScreenPoint(new Vector2(Screen.width, 0.0f)).x);
 
 												mainCamera.transform.position = 
 													new Vector3(hintBox.transform.position.x, hintBox.transform.position.y, mainCamera.transform .position.z);
@@ -363,7 +386,7 @@ public class TextTester : MonoBehaviour
 											}
 										}
 									}
-								}
+								}*/
 
 								state = State.INCORRECT;
 								break;
@@ -371,7 +394,7 @@ public class TextTester : MonoBehaviour
 						}
 					}
 				}
-				print (state);
+			//	print (state);
 
 			}
 			goto case State.LOOKING;
