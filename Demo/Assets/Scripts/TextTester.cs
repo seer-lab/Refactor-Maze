@@ -36,6 +36,8 @@ public class TextTester : MonoBehaviour
 
 	private Transform boxHolder; // make the visual boxes easier to manage
 
+	private XmlNode currentNode;
+
 	public void startLevel(string level) //string for now
 	{
 		codeBlocks.Clear ();
@@ -50,21 +52,6 @@ public class TextTester : MonoBehaviour
 				codeBlocks.Add (node.InnerText);
 			}
 		}
-	}
-
-	private void shuffleCodeBlocks()
-	{
-		//Fisher-Yates shuffle
-		int max = codeBlocks.Count;
-		int theMax = max - 1;
-		while (max > 0) 
-		{
-			int randomNumber = Random.Range (0, max);
-			string temp = codeBlocks [theMax];
-			codeBlocks[theMax] = codeBlocks[randomNumber];
-			codeBlocks [randomNumber] = temp;
-			max--;
-		}		
 	}
 
 	private void setUpBoxes()
@@ -82,13 +69,6 @@ public class TextTester : MonoBehaviour
 		{
 			GameObject.Destroy(child.gameObject);
 		}
-	}
-
-	private XmlDocument getCurrentLevel()
-	{
-		XmlDocument doc = new XmlDocument();
-		doc.Load ("Assets/Scripts/" + codeBlocks[currentBlock]);
-		return doc;
 	}
 
 	private int getID(XmlNode node)
@@ -110,7 +90,7 @@ public class TextTester : MonoBehaviour
 
 	private void addRectangles(int type, Vector2 minBound, Vector2 maxBound)
 	{
-		if (!rectangles.ContainsKey (type))  //temp
+		if (!rectangles.ContainsKey (type))
 		{
 			rectangles.Add (type, new List<Rect>());
 		}
@@ -195,6 +175,7 @@ public class TextTester : MonoBehaviour
 	public void getBoxes(XmlNode levelnode)
 	{
 		setUpBoxes ();
+		currentNode = levelnode;
 		foreach (XmlNode node in levelnode.ChildNodes) 
 		{
 			textComponent.text += node.InnerText;
@@ -209,42 +190,6 @@ public class TextTester : MonoBehaviour
 			}
 		}
 
-		drawBoxes ();
-		//using this for lower bounds it's gross
-		TextGenerator g;
-
-		g = new TextGenerator (textComponent.text.Length);
-		Vector2 e = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
-		g.Populate (textComponent.text, textComponent.GetGenerationSettings (e));
-
-		int what = textComponent.text.Length;
-		Vector2 r = new Vector2 (g.verts [what * 4 + 2].position.x, g.verts [what * 4 + 2].position.y);
-
-		bottom = textComponent.transform.TransformPoint (r).y;
-	}
-		
-	private void getBoxes()
-	{
-		setUpBoxes ();
-
-		XmlDocument doc = getCurrentLevel ();
-
-		correctCode = doc.DocumentElement.SelectSingleNode ("/stuff/correctcode").InnerText;
-		XmlNode levelnode =  doc.DocumentElement.SelectSingleNode("/stuff/code");
-		foreach (XmlNode node in levelnode.ChildNodes) 
-		{
-			textComponent.text += node.InnerText;
-			//print (node.InnerText);
-			if (node.Name == "smell")
-			{
-				getCodeBounds (node);
-			}
-			else if (node.Name == "newline")
-			{
-				textComponent.text += "\n";
-			}
-		}
-	
 		drawBoxes ();
 		//using this for lower bounds it's gross
 		TextGenerator g;
@@ -289,32 +234,12 @@ public class TextTester : MonoBehaviour
 		}
 	}
 
-	public void nextBlock()
-	{
-		currentBlock++;
-		if (currentBlock == codeBlocks.Count)
-		{
-			currentBlock = 0;
-			shuffleCodeBlocks ();
-		}
-		getBoxes ();
-	}
-
-	public void SetUp(string level)
-	{
-	//	startLevel (level);
-		shuffleCodeBlocks ();
-
-		textComponent = GetComponent<Text> ();
-		mainCamera = Camera.main;
-	//	getBoxes ();
-	}
-
 	private void Start() 
 	{
 		boxHolder = new GameObject ("boxHolder").transform;
 		boxHolder.SetParent (this.transform);
-	//	SetUp ("testlevel");
+		textComponent = GetComponent<Text> ();
+		mainCamera = Camera.main;
 
 	}
 
@@ -342,8 +267,7 @@ public class TextTester : MonoBehaviour
 							} 
 							else 
 							{
-				/*				XmlDocument doc = getCurrentLevel ();
-								XmlNode feedbackNode =  doc.DocumentElement.SelectSingleNode("/stuff/feedback");
+								XmlNode feedbackNode = currentNode.SelectSingleNode("../feedback");
 								if (feedbackNode != null)
 								{
 									foreach (XmlNode node in feedbackNode.ChildNodes) 
@@ -386,7 +310,7 @@ public class TextTester : MonoBehaviour
 											}
 										}
 									}
-								}*/
+								}
 
 								state = State.INCORRECT;
 								break;

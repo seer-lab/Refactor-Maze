@@ -104,4 +104,28 @@ void PrintCustomerDetails()
 
 </block>
 
+<block id = "3">
+<feedback>
+
+<hint id = "1">dude look at this hint
+whoa</hint>
+
+</feedback>
+
+<smellcode>
+
+<smell id = "0">
+I repeat myself when under stress
+I repeat myself when under stress
+</smell>
+<smell id = "1">I repeat myself when under stress</smell>
+
+</smellcode>
+
+<correctcode>
+I repeat myself when under stress
+</correctcode>
+</block>
+
+
 </code>
