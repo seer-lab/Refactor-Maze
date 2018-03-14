@@ -9,6 +9,7 @@ TagManager:
   - Wall
   - Door
   - Exit
+  - Instructions
   layers:
   - Default
   - TransparentFX

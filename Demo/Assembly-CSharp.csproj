@@ -51,15 +51,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\EnemyController.cs" />
+     <Compile Include="Assets\Scripts\fullscreen.cs" />
+     <Compile Include="Assets\Scripts\KeyProperties.cs" />
      <Compile Include="Assets\Scripts\LevelCreate.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />
-     <Compile Include="Assets\Scripts\SmellScript.cs" />
+     <Compile Include="Assets\Scripts\StartGame.cs" />
      <Compile Include="Assets\Scripts\tester.cs" />
+     <Compile Include="Assets\Scripts\TextFlicker.cs" />
+     <Compile Include="Assets\Scripts\TextFunctions.cs" />
      <Compile Include="Assets\Scripts\TextTester.cs" />
      <None Include="Assets\Scripts\test.xml" />
      <None Include="Assets\Scripts\test2.xml" />
      <None Include="Assets\Scripts\test5.xml" />
+     <None Include="Assets\Scripts\test7.xml" />
      <None Include="Assets\Scripts\test3.xml" />
      <None Include="Assets\Scripts\test6.xml" />
      <None Include="Assets\Scripts\testlevel.xml" />

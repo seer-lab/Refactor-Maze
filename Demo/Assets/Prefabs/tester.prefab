@@ -54,6 +54,8 @@ MonoBehaviour:
   onOff: 0
   level: {fileID: 0}
   code: {fileID: 0}
+  displayInstance: {fileID: 1438958105369208, guid: 89d4349bc9f74c541ad63264d3ef200d,
+    type: 2}
   display: {fileID: 0}
   player: {fileID: 0}
   codeObject: {fileID: 0}
@@ -62,4 +64,4 @@ MonoBehaviour:
   levelStart: {x: 0, y: 0}
   levelExit: {x: 0, y: 0}
   state: 0
-  borderSprite: {fileID: 21300000, guid: f5245898faed1ff4dbbbd4cb45025e0c, type: 3}
+  borderSprite: {fileID: 21300000, guid: c28fd6d46a2b22b45ab2f1c9d37d8d81, type: 3}

@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
 	public float speed = 15.0f;
+	private float moveSpeed; //speed * Time.deltaTime
 	public Vector2 direction;
 
 	private Rigidbody2D rb2d;
@@ -14,6 +15,8 @@ public class PlayerController : MonoBehaviour {
 	public GameObject door;
 
 	public bool hasKey; //Probably want some type of list later
+
+	public List<KeyProperties> keyList = new List<KeyProperties> (); //the int is the ID, representing the technique, of the key
 
 	public LayerMask blockingLayer;
 
@@ -95,15 +98,25 @@ public class PlayerController : MonoBehaviour {
 
 	public void move()
 	{
-		Vector2 velocity = direction * speed * Time.deltaTime;
+		moveSpeed = speed * Time.deltaTime;
+		Vector2 velocity = direction * moveSpeed;
 
 		rb2d.MovePosition (rb2d.position + velocity);
 	}
 
+	//need to rework this, it's currently possible to overshoot the position and never stop
 	public void snapToPosition(Vector2 position)
 	{
 		float snapDistance = 0.2f;
-		if (direction.x > 0)
+		Vector2 wah = rb2d.position - position;
+		//wah.m
+		if ((rb2d.position - position).magnitude <= moveSpeed) 
+		{
+			transform.position = position;
+			direction = Vector2.zero;
+			moving = false;
+		}
+		/*if (direction.x > 0)
 		{
 			float clampedX = Mathf.Ceil (position.x);
 			if (Mathf.Abs (rb2d.position.x - clampedX) <= snapDistance) 
@@ -142,7 +155,7 @@ public class PlayerController : MonoBehaviour {
 				direction = Vector2.zero;
 				moving = false;
 			}
-		}
+		}*/
 	}
 
 	void OnTriggerEnter2D(Collider2D other)
@@ -150,7 +163,9 @@ public class PlayerController : MonoBehaviour {
 		if (other.gameObject.CompareTag ("Smell"))
 		{
 			//nearSmell = other.gameObject;
+
 			hasKey = true;
+			keyList.Add (((KeyProperties)other.gameObject.GetComponent (typeof(KeyProperties))));
 			other.gameObject.SetActive (false);
 		} 
 		else if (other.gameObject.CompareTag ("Door")) 

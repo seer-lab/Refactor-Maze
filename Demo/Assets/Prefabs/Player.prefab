@@ -99,17 +99,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4218001ea45f63c41baed7b1d8efbfca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  holding: 0
-  speed: 10
+  speed: 15
   direction: {x: 0, y: 0}
   heldSmell: {fileID: 0}
   nearSmell: {fileID: 0}
   door: {fileID: 0}
   hasKey: 0
-  level: {fileID: 0}
+  keyList: 
   blockingLayer:
     serializedVersion: 2
     m_Bits: 256
+  exiting: 0
 --- !u!212 &212518800685875958
 SpriteRenderer:
   m_ObjectHideFlags: 1

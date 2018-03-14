@@ -37,6 +37,7 @@ public class LevelCreate : MonoBehaviour {
 	public GameObject tester;
 	public GameObject code;
 
+	public List<GameObject> theKeys = new List<GameObject>();
 
 	public GameObject outerWallTile; 
 
@@ -120,21 +121,7 @@ public class LevelCreate : MonoBehaviour {
 			}
 		}
 	}
-
-	//RandomPosition returns a random position from our list gridPositions.
-	//This function is modified http://unity3d.com/learn/tutorials/projects/2d-roguelike
-/*	Vector3 RandomPosition ()
-	{
-		int randomIndex = Random.Range (0, validPositions.Count);
-		Vector3 randomPosition = validPositions[randomIndex];
-		//Remove the entry at randomIndex from the list so that it can't be re-used.
-		validPositions.RemoveAt (randomIndex);
-
-		theTiles[new Vector2(randomPosition.x, randomPosition.y)] = OCCUPIED;
-
-		//Return the randomly selected Vector3 position.
-		return randomPosition;
-	}*/
+		
 
 	//RandomPosition returns a random position from our list gridPositions.
 	//This function is modified http://unity3d.com/learn/tutorials/projects/2d-roguelike
@@ -145,13 +132,31 @@ public class LevelCreate : MonoBehaviour {
 		//Remove the entry at randomIndex from the list so that it can't be re-used.
 		vPositions[currentLevel].RemoveAt (randomIndex);
 
-		theTiles[new Vector2(randomPosition.x, randomPosition.y)] = OCCUPIED;
+		theTiles[new Vector2(randomPosition.x, randomPosition.y)] = OCCUPIED; //probably delete
 
 		//Return the randomly selected Vector3 position.
 		return randomPosition;
 	}
 
-	 //still need to remove wall tiles from list of valid positions
+	//Clear out a position for a key and set a new one
+	public void NewKeyPosition(int currentLevel, List<int> keyList) //workin on it
+	{
+		//Add back the key's position to the list of valid positions
+		for (int i = 0; i < theKeys.Count; i++) 
+		{
+			vPositions [currentLevel].Add (theKeys[i].transform.localPosition);
+		}
+
+		for (int i = 0; i < theKeys.Count; i++) 
+		{
+			Vector2 something = RandomPosition (currentLevel);
+			theKeys[i].transform.localPosition = something;
+			theKeys [i].SetActive (true);
+
+			((KeyProperties)theKeys [i].GetComponent (typeof(KeyProperties))).SetType(keyList[i]);
+		}
+	}
+
 	void BackTracker(Vector2 minBounds, Vector2 maxBounds, int currentLevel)
 	{
 		int unvisitedCells = 0;
@@ -178,7 +183,6 @@ public class LevelCreate : MonoBehaviour {
 				vPositions [currentLevel].Add (new Vector2 (x, y));
 			}
 		}
-			
 
 		Cell currentCell = new Cell();
 		//currentCell.position = new Vector2(maxBounds.x / 2 , maxBounds.y / 2 );
@@ -346,10 +350,12 @@ public class LevelCreate : MonoBehaviour {
 		bc.size = new Vector2 (0.9f, 0.9f);
 
 		exitObject.transform.position = instance.transform.position;
+		exitObject.transform.SetParent (level);
 	}
 
 	void SetDoors()
 	{
+		int currentLevel = 0;
 		int x = 1;
 		int y = 0;
 		bool right = true;
@@ -357,17 +363,48 @@ public class LevelCreate : MonoBehaviour {
 		{
 			if (right) 
 			{
+				//top right, going up
 				if (x == mazesX) 
 				{
 					y++;
-					CreateDoor (new Vector2 (((columns - 1) + ((columns + 1) * (x - 1))), ((rows + 1) * y) - 1));
+					Vector2 position = new Vector2 (((columns - 1) + ((columns + 1) * (x - 1))), ((rows + 1) * y) - 1);
+					CreateDoor (position);
 					x--;
 					right = false;
+
+					Vector2 p1 = new Vector2 (position.x, position.y + 1);
+					Vector2 p2 = new Vector2 (position.x, position.y - 1);
+
+					Vector2 max = new Vector2 (position.x + 1, position.y);
+					Vector2 min = new Vector2 (max.x - columns, max.y - rows);
+
+					BackTracker (min, max, currentLevel);
+
+					for(int c = 0; c < vPositions.Count; c ++)
+					{
+						vPositions [c].Remove (p1);
+						vPositions [c].Remove (p2);
+					}
 				}
+				//top right, moving right
 				else
 				{
-					//CreateDoor (new Vector2 (((columns + 1) * x) - 1, 0 + ((y - 1) * rows) + 1));
-					CreateDoor (new Vector2 (((columns + 1) * x) - 1, (rows - 1) + (rows + 1) * y)); //starts at the top
+					Vector2 position = new Vector2 (((columns + 1) * x) - 1, (rows - 1) + (rows + 1) * y);
+					CreateDoor (position); //starts at the top
+
+					Vector2 max = new Vector2 (position.x, position.y + 1);
+					Vector2 min = new Vector2 (max.x - columns, max.y - rows);
+
+					BackTracker (min, max, currentLevel);
+
+					//oof
+					Vector2 p1 = new Vector2 (position.x - 1, position.y);
+					Vector2 p2 = new Vector2 (position.x + 1, position.y);
+					for(int c = 0; c < vPositions.Count; c ++)
+					{
+						vPositions [c].Remove (p1);
+						vPositions [c].Remove (p2);
+					}
 
 					x++;
 				}
@@ -375,27 +412,71 @@ public class LevelCreate : MonoBehaviour {
 			}
 			else
 			{
+				//top left, going up
 				if (x == 0) 
 				{
 					y++;
-
-					CreateDoor (new Vector2 (((columns) * x), ((rows + 1) * y) - 1));
+					Vector2 position = new Vector2 (((columns) * x), ((rows + 1) * y) - 1);
+					CreateDoor (position);
 					x++;
 					right = true;
+
+					Vector2 p1 = new Vector2 (position.x, position.y + 1);
+					Vector2 p2 = new Vector2 (position.x, position.y - 1);
+
+					Vector2 max = new Vector2 (position.x + columns, position.y);
+					Vector2 min = new Vector2 (max.x - columns, max.y - rows);
+
+					BackTracker (min, max, currentLevel);
+
+					for(int c = 0; c < vPositions.Count; c ++)
+					{
+						vPositions [c].Remove (p1);
+						vPositions [c].Remove (p2);
+					}
 				}
+				//bottom left, going left
 				else
 				{
-					CreateDoor (new Vector2 (((columns + 1) * x) - 1, 0 + (rows + 1) * y));
+					Vector2 position = new Vector2 (((columns + 1) * x) - 1, 0 + (rows + 1) * y);
+					CreateDoor (position);
 					x--;
+
+					Vector2 p1 = new Vector2 (position.x - 1, position.y);
+					Vector2 p2 = new Vector2 (position.x + 1, position.y);
+
+					Vector2 min = new Vector2 (position.x + 1, position.y);
+					Vector2 max = new Vector2 (min.x + columns, min.y + rows);
+
+					BackTracker (min, max, currentLevel);
+
+					for(int c = 0; c < vPositions.Count; c ++)
+					{
+						vPositions [c].Remove (p1);
+						vPositions [c].Remove (p2);
+					}
 				}
 			}
+			currentLevel++;
+
+		}
+		int numberOfKeys = 3; //maybe random?
+
+		theKeys.Capacity = numberOfKeys;
+		//Going to have one array of keys, set to whatever the max number of keys is going to be
+		//Just reuse this array, don't have all of them active.
+		for (int k = 0; k < numberOfKeys; k++) 
+		{
+			//GameObject instance = Instantiate (key, RandomPosition (currentLevel), Quaternion.identity);
+			GameObject instance = Instantiate (key, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
+			instance.transform.SetParent (level);
+			theKeys.Add (instance);
 		}
 	}
 
-	// Use this for initialization
 	void Start () 
 	{
-
+		//TODO make a function to be called from tester that sets the height and width and what not
 		if (mazesX <= 1) 
 		{
 			width = 0;
@@ -416,41 +497,35 @@ public class LevelCreate : MonoBehaviour {
 
 		InitialiseList ();
 		BoardSetup ();
+		SetDoors ();
 
 		GameObject instance;
 		//need to rework this
-		int currentLevel = 0;
-		for (int i = 0; i < mazesX; i++) 
+	//	int currentLevel = 0;
+	/*	for (int i = 0; i < mazesX; i++) 
 		{
 			for (int c = 0; c < mazesY; c++) 
 			{
 				BackTracker(new Vector2(i * (columns + 1), c * (rows + 1)), 
 					new Vector2(columns + (columns + 1) * i, rows + (rows + 1) * c), currentLevel);
-				instance = Instantiate (key, RandomPosition (currentLevel), Quaternion.identity);
+				for (int k = 0; k < 3; k++) 
+				{
+					instance = Instantiate (key, RandomPosition (currentLevel), Quaternion.identity);
+					instance.transform.SetParent (level);
+				}
 				currentLevel++;
-				instance.transform.SetParent (level);
-
 			}
-		}
-		//Instantiate (key, RandomPosition (), Quaternion.identity);
-		//Instantiate (key, RandomPosition (), Quaternion.identity);
-
-		//instance = Instantiate (key, new Vector2(0, 20), Quaternion.identity);
-
-		SetDoors ();
-
+		}*/
+			
 		instance = Instantiate (player, new Vector2 (columns / 2, rows / 2), Quaternion.identity);
 		instance.transform.SetParent (level);
 		Instantiate (tester, Vector2.zero, Quaternion.identity);
 
 
 		mainCamera.transform.position = new Vector3 (columns / 2, rows / 2, -10.0f);
-		mainCamera.GetComponent<Camera> ().orthographicSize = (columns/2) + 1.5f;
-	}
+		//mainCamera.GetComponent<Camera> ().orthographicSize = (columns/2) + 1.5f;
+		mainCamera.GetComponent<Camera> ().orthographicSize = 17.0f;
 
-	// Update is called once per frame
-	void Update () 
-	{
-
+		level.transform.position = new Vector3 (-9, level.transform.position.y, level.transform.position.z);
 	}
 }
