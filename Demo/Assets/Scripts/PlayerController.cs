@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class PlayerController : MonoBehaviour {
 
@@ -13,8 +15,9 @@ public class PlayerController : MonoBehaviour {
 	public GameObject nearSmell;
 
 	public GameObject door;
+	public GameObject keyDialog;
+	private KeyProperties keyToAdd;
 
-	public bool hasKey; //Probably want some type of list later
 
 	public List<KeyProperties> keyList = new List<KeyProperties> (); //the int is the ID, representing the technique, of the key
 
@@ -22,8 +25,11 @@ public class PlayerController : MonoBehaviour {
 
 	private bool moving;
 	public bool exiting;
+	public bool keyLook;
+	private bool recentKey; //So the player doesn't get when dropping keys.
 
 	private Vector2 newPosition;
+
 
 	// Use this for initialization
 	void Start () 
@@ -33,9 +39,13 @@ public class PlayerController : MonoBehaviour {
 		nearSmell = null;
 		heldSmell = null;
 		door = null;
-		hasKey = true;
 		moving = false;
 		exiting = false;
+		keyLook = false;
+		recentKey = false;
+
+		keyDialog = GameObject.Find ("KeyDialog");
+		keyDialog.SetActive (false);
 
 		newPosition = Vector2.zero;
 	}
@@ -71,7 +81,20 @@ public class PlayerController : MonoBehaviour {
 	
 	void Update () 
 	{
-		if (!moving) 
+		if(keyLook)
+		{
+			if (Input.GetKeyDown (KeyCode.Q)) 
+			{
+				PickUpKey ();
+			}
+			else if (Input.GetKeyDown (KeyCode.Return)) 
+			{
+				keyToAdd = null;
+				keyDialog.SetActive (false);
+				keyLook = false;
+			}
+		}
+		else if (!moving) 
 		{
 			GetInput ();
 			if (direction.magnitude != 0)
@@ -158,15 +181,45 @@ public class PlayerController : MonoBehaviour {
 		}*/
 	}
 
+	void PickUpKey()
+	{
+		if (keyList.Count > 0) 
+		{
+			keyList [0].transform.position = keyToAdd.transform.position;
+			keyList [0].gameObject.SetActive (true);
+			keyList.Clear ();
+			recentKey = true;
+		}
+
+		keyList.Add (keyToAdd);
+		keyToAdd.gameObject.SetActive (false);
+
+		keyToAdd = null;
+		keyDialog.SetActive (false);
+		keyLook = false;
+	}
+
+	void ShowDialog(GameObject keyObject)
+	{
+		if (!recentKey) 
+		{
+			keyLook = true;
+			keyDialog.SetActive (true);
+			keyToAdd = ((KeyProperties)keyObject.GetComponent (typeof(KeyProperties)));
+			Text keyText = (keyDialog.GetComponentInChildren<Text> ());
+			keyText.text = keyToAdd.refactorName + "\nPress the Q key to pick up\nPress enter continue";
+			if (keyList.Count > 0) 
+			{
+				keyText.text += "\nPicking up this key will drop your current key.";
+			}
+		}
+	}
+
 	void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.gameObject.CompareTag ("Smell"))
 		{
-			//nearSmell = other.gameObject;
-
-			hasKey = true;
-			keyList.Add (((KeyProperties)other.gameObject.GetComponent (typeof(KeyProperties))));
-			other.gameObject.SetActive (false);
+			ShowDialog (other.gameObject);
 		} 
 		else if (other.gameObject.CompareTag ("Door")) 
 		{
@@ -191,7 +244,13 @@ public class PlayerController : MonoBehaviour {
 		{
 			exiting = false;
 			moving = false;
-			//snapToPosition (rb2d.position);
 		}
+		else if(other.gameObject.CompareTag("Smell"))
+		{
+			if (other.gameObject.active) 
+			{
+				recentKey = false;
+			}
+		}	
 	}
 }

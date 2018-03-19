@@ -104,12 +104,13 @@ MonoBehaviour:
   heldSmell: {fileID: 0}
   nearSmell: {fileID: 0}
   door: {fileID: 0}
-  hasKey: 0
-  keyList: 
+  keyDialog: {fileID: 0}
+  keyList: []
   blockingLayer:
     serializedVersion: 2
     m_Bits: 256
   exiting: 0
+  keyLook: 0
 --- !u!212 &212518800685875958
 SpriteRenderer:
   m_ObjectHideFlags: 1

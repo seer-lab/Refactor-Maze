@@ -58,6 +58,7 @@ public class tester : MonoBehaviour {
 	private int currentBlock;
 
 	public int currentLevel = 0;
+	private int numberOfLevels = 0;
 
 	public enum State{PLAYING, LEVEL_TRANSITION, INSTRUCTIONS};
 	public State state;
@@ -107,8 +108,6 @@ public class tester : MonoBehaviour {
 
 		Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
 			new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
-
-
 
 		//SetInstructionText ();
 
@@ -181,8 +180,6 @@ public class tester : MonoBehaviour {
 			keyTypes.Add (i);
 		}
 			
-		int cLevel = 0;
-
 		XmlDocument doc = new XmlDocument();
 		doc.Load ("Assets/Scripts/test7.xml");
 
@@ -204,7 +201,7 @@ public class tester : MonoBehaviour {
 					smell = true;
 					codeBlocks.Add (refactorBlocks);
 
-					cLevel++;
+					numberOfLevels++;
 				} 
 				else if (blockNode.Name == "correctcode") 
 				{
@@ -256,11 +253,6 @@ public class tester : MonoBehaviour {
 			int index = Random.Range (0, randomKeys.Count);
 			levelKeys.Add(randomKeys[index]);
 			randomKeys.RemoveAt (index);
-		}
-
-		for (int i = 0; i < levelKeys.Count; i++) 
-		{
-		//	print (levelKeys [i]);
 		}
 	}
 
@@ -454,7 +446,11 @@ public class tester : MonoBehaviour {
 				&& child.position.y >= yMin
 				&& child.position.y <= yMax)	
 			{
-				child.gameObject.SetActive (true);
+				//ugh
+				if (child.tag != "Smell") 
+				{
+					child.gameObject.SetActive (true);
+				}
 			} 
 			else 
 			{
@@ -463,7 +459,6 @@ public class tester : MonoBehaviour {
 		}
 	}
 
-	//TODO rewrite this, isn't going to work with the keys
 	private void removeBlock()
 	{
 		displayCodeBlocks [codeBlocks[currentBlock]] = correctCode [codeBlocks[currentBlock]];
@@ -500,7 +495,6 @@ public class tester : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-
 		switch (state)
 		{
 		case State.PLAYING:
@@ -552,31 +546,34 @@ public class tester : MonoBehaviour {
 				}
 				else
 				{
-					//maybe rethink this.
-					if (Input.GetKeyDown ("q")) 
+					if(!player.keyLook)
 					{
-						if (player.door != null) 
-						{ 
-							if (player.keyList.Count > 0)
-							{
-								door = player.door;
-								switchMode ();
-								currentKey = 0;
-								legendText.text = "Refactor: " + GetKeyName ();
-									
-								codeObject.state = TextTester.State.SELECTING;
-							} 
+						//maybe rethink this.
+						if (Input.GetKeyDown ("q")) 
+						{
+							if (player.door != null) 
+							{ 
+								if (player.keyList.Count > 0)
+								{
+									door = player.door;
+									switchMode ();
+									currentKey = 0;
+									legendText.text = "Refactor: " + GetKeyName ();
+										
+									codeObject.state = TextTester.State.SELECTING;
+								} 
+							}
 						}
+						Vector3 displayPosition = display.transform.position;
+						if (Input.GetKey ("w"))
+						{
+							display.transform.position = new Vector3 (displayPosition.x, displayPosition.y + 1, displayPosition.z);
+						} 
+						else if (Input.GetKey ("s"))
+						{
+							display.transform.position = new Vector3 (displayPosition.x, displayPosition.y - 1, displayPosition.z);
+						} 
 					}
-					Vector3 displayPosition = display.transform.position;
-					if (Input.GetKey ("w"))
-					{
-						display.transform.position = new Vector3 (displayPosition.x, displayPosition.y + 1, displayPosition.z);
-					} 
-					else if (Input.GetKey ("s"))
-					{
-						display.transform.position = new Vector3 (displayPosition.x, displayPosition.y - 1, displayPosition.z);
-					} 
 				}
 
 			} 
@@ -616,12 +613,10 @@ public class tester : MonoBehaviour {
 				case TextTester.State.SELECTING:
 					if (Input.GetMouseButtonDown (0))
 					{
-						if (correctRefactor == player.keyList [currentKey].type)
-						{
-							codeObject.CheckRefactor (currentKey);
-						}
+						codeObject.CheckRefactor (player.keyList [currentKey].type, correctRefactor);
 					}
 
+					//TODO delete this
 					if (Input.GetKeyDown ("up"))
 					{
 						currentKey++;
@@ -630,7 +625,6 @@ public class tester : MonoBehaviour {
 							currentKey = 0;
 						}
 						legendText.text = "Refactor: " + GetKeyName ();
-						print (currentKey);
 					} 
 					else if (Input.GetKeyDown ("down")) 
 					{
@@ -640,8 +634,6 @@ public class tester : MonoBehaviour {
 							currentKey = player.keyList.Count - 1;
 						}
 						legendText.text = "Refactor: " + GetKeyName ();
-						print (currentKey);
-
 					} 					
 					goto case TextTester.State.LOOKING;
 
@@ -655,27 +647,34 @@ public class tester : MonoBehaviour {
 
 			levelTransitionTimer += Time.deltaTime;
 			//appropriate messages will be handled by code class
-			if (levelTransitionTimer >= levelTransitionTime) 
-			{
-				levelTransitionTimer = 0.0f;
-				state = State.PLAYING;
-				//Snap to correct position
-				player.transform.position = levelStart;
-
-				player.direction = Vector2.zero;
-				mainCamera.transform.position = cameraTarget;
-
-				levelCameraPosition = cameraTarget;
-
-			//	door.SetActive (true);
-
-				Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
-					new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
-				player.enabled = true;
+			if (levelTransitionTimer >= levelTransitionTime) {
 
 				currentLevel++;
+				if (currentLevel >= numberOfLevels) 
+				{
+					UnityEngine.SceneManagement.SceneManager.LoadScene (2);
+				}
+				else
+				{
 
-				SetKeys ();
+					levelTransitionTimer = 0.0f;
+					state = State.PLAYING;
+					//Snap to correct position
+					player.transform.position = levelStart;
+
+					player.direction = Vector2.zero;
+					mainCamera.transform.position = cameraTarget;
+
+					levelCameraPosition = cameraTarget;
+
+					//	door.SetActive (true);
+
+					Cull (new Vector2 (levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
+						new Vector2 (levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
+					player.enabled = true;
+
+					SetKeys ();
+				}
 			} 
 			else 
 			{

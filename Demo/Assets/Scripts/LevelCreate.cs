@@ -118,6 +118,12 @@ public class LevelCreate : MonoBehaviour {
 
 					outerWalls.Add (new Vector2 (x, y), instance);
 				}
+				else
+				{
+					toInstantiate = floorTiles [0];
+					GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity);
+					instance.transform.SetParent (level);
+				}
 			}
 		}
 	}
@@ -139,15 +145,16 @@ public class LevelCreate : MonoBehaviour {
 	}
 
 	//Clear out a position for a key and set a new one
-	public void NewKeyPosition(int currentLevel, List<int> keyList) //workin on it
+	public void NewKeyPosition(int currentLevel, List<int> keyList) 
 	{
 		//Add back the key's position to the list of valid positions
 		for (int i = 0; i < theKeys.Count; i++) 
 		{
 			vPositions [currentLevel].Add (theKeys[i].transform.localPosition);
+			theKeys [i].SetActive (false);
 		}
 
-		for (int i = 0; i < theKeys.Count; i++) 
+		for (int i = 0; i < currentLevel + 1; i++) 
 		{
 			Vector2 something = RandomPosition (currentLevel);
 			theKeys[i].transform.localPosition = something;
@@ -516,16 +523,20 @@ public class LevelCreate : MonoBehaviour {
 				currentLevel++;
 			}
 		}*/
-			
-		instance = Instantiate (player, new Vector2 (columns / 2, rows / 2), Quaternion.identity);
+
+		Vector2 playerStart = new Vector2 (columns / 2, rows / 2);
+		vPositions[0].Remove (playerStart);
+
+		instance = Instantiate (player, playerStart, Quaternion.identity);
 		instance.transform.SetParent (level);
 		Instantiate (tester, Vector2.zero, Quaternion.identity);
+
 
 
 		mainCamera.transform.position = new Vector3 (columns / 2, rows / 2, -10.0f);
 		//mainCamera.GetComponent<Camera> ().orthographicSize = (columns/2) + 1.5f;
 		mainCamera.GetComponent<Camera> ().orthographicSize = 17.0f;
 
-		level.transform.position = new Vector3 (-9, level.transform.position.y, level.transform.position.z);
+		level.transform.position = new Vector3 (-11.2f, level.transform.position.y, level.transform.position.z);
 	}
 }

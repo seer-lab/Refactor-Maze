@@ -212,7 +212,6 @@ public class TextTester : MonoBehaviour
 		TextFunctions.getTextBounds (ref minBound, ref maxBound, textComponent);
 
 		//Draws the border around the text
-		//drawBox (minBound, maxBound, 1);
 		TextFunctions.drawBox(minBound, maxBound, 1, boxHolder, borderSprite);
 
 		//Draws the border around clickable text
@@ -289,8 +288,9 @@ public class TextTester : MonoBehaviour
 
 	}
 
-	public void CheckRefactor(int type) //pass in correct later
+	public void CheckRefactor(int type, int correctRefactor) 
 	{
+			
 		Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 
 		foreach (KeyValuePair<int, List<Rect>> entry in rectangles) 
@@ -299,9 +299,29 @@ public class TextTester : MonoBehaviour
 			{
 				if (entry.Value [i].Contains (clickPosition, true)) 
 				{
-					if (entry.Key == 0)
+					if (correctRefactor != type) 
+					{
+						textComponent.text = "This is not the most appropriate refactor for this piece of code";
+
+						destroyBoxes ();
+
+						Vector2 minBound = Vector2.zero;
+						Vector2 maxBound = Vector2.zero;
+
+						TextFunctions.getTextBounds (ref minBound, ref maxBound, textComponent);
+
+						//Draws the border around the text
+						//drawBox (minBound, maxBound, 1);
+						GameObject hintBox = TextFunctions.drawBox(minBound, maxBound, 1, boxHolder, borderSprite);
+
+						mainCamera.transform.position = 
+							new Vector3(hintBox.transform.position.x, hintBox.transform.position.y, mainCamera.transform .position.z);
+
+						state = State.INCORRECT;
+
+					}
+					else if (entry.Key == 0)
 					{ 
-						//textComponent.text = correctCode;
 						XmlNode correctNode = currentNode.SelectSingleNode("../correctcode");
 						textComponent.text = correctNode.InnerText;
 						destroyBoxes ();

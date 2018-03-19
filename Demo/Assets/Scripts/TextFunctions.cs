@@ -22,7 +22,7 @@ public static class TextFunctions
 		return type;
 	}
 
-	public static void drawBox(Vector2 minBound, Vector2 maxBound, int offset, Transform boxHolder, Sprite borderSprite)
+	public static GameObject drawBox(Vector2 minBound, Vector2 maxBound, int offset, Transform boxHolder, Sprite borderSprite)
 	{
 		Vector2 bRight = new Vector2 (maxBound.x + offset, minBound.y - offset);
 		Vector2 uLeft = new Vector2 (minBound.x - offset, maxBound.y + offset);
@@ -41,6 +41,8 @@ public static class TextFunctions
 		hintBox.transform.position = new Vector2(uLeft.x + newRectangle.width * 0.5f, uLeft.y + newRectangle.height * 0.5f); //center the box
 
 		hintBox.transform.SetParent (boxHolder);
+
+		return hintBox;
 	}
 
 	public static void getTextBounds(ref Vector2 minBound, ref Vector2 maxBound, Text textComponent)
