@@ -120,9 +120,9 @@ public class LevelCreate : MonoBehaviour {
 				}
 				else
 				{
-					toInstantiate = floorTiles [0];
-					GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity);
-					instance.transform.SetParent (level);
+				//	toInstantiate = floorTiles [0];
+				//	GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity);
+				//	instance.transform.SetParent (level);
 				}
 			}
 		}

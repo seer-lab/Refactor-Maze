@@ -356,29 +356,14 @@ public class TextTester : MonoBehaviour
 										Vector2 minBound = Vector2.zero;
 										Vector2 maxBound = Vector2.zero;
 
-										getTextBounds (node, ref minBound, ref maxBound);
+										TextFunctions.getTextBounds (ref minBound, ref maxBound, textComponent);
 
-										Vector2 bRight = new Vector2 (maxBound.x + 1, minBound.y - 1);
-										Vector2 uLeft = new Vector2 (minBound.x - 1, maxBound.y + 1);
-
-										Vector2 size = bRight - uLeft;
-										Rect newRectangle = new Rect (uLeft, size);
-
-										GameObject hintBox = new GameObject("test");
-										hintBox.tag = "Exit";
-										SpriteRenderer renderer = hintBox.AddComponent <SpriteRenderer>();
-										renderer.sprite = borderSprite;
-										renderer.drawMode = SpriteDrawMode.Sliced;
-
-										renderer.size = new Vector2 (newRectangle.width, newRectangle.height);;
-
-										hintBox.transform.position = new Vector2(uLeft.x + newRectangle.width * 0.5f, uLeft.y + newRectangle.height * 0.5f); //center the box
-
-										hintBox.transform.SetParent (boxHolder);
+										//Draws the border around the text
+										//drawBox (minBound, maxBound, 1);
+										GameObject hintBox = TextFunctions.drawBox(minBound, maxBound, 1, boxHolder, borderSprite);
 
 										mainCamera.transform.position = 
 											new Vector3(hintBox.transform.position.x, hintBox.transform.position.y, mainCamera.transform .position.z);
-
 									}
 								}
 							}

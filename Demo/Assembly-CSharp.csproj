@@ -61,7 +61,7 @@
      <Compile Include="Assets\Scripts\TextFlicker.cs" />
      <Compile Include="Assets\Scripts\TextFunctions.cs" />
      <Compile Include="Assets\Scripts\TextTester.cs" />
-     <None Include="Assets\backup.xml" />
+     <None Include="Assets\Scripts\backup.xml" />
      <None Include="Assets\Scripts\test.xml" />
      <None Include="Assets\Scripts\test2.xml" />
      <None Include="Assets\Scripts\test5.xml" />

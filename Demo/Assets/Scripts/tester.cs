@@ -498,11 +498,6 @@ public class tester : MonoBehaviour {
 		switch (state)
 		{
 		case State.PLAYING:
-			if (Input.GetKeyDown ("p")) 
-			{
-				switchMode ();
-				codeObject.state = TextTester.State.SELECTING; //temp, just for testing
-			}
 			if (Input.GetKeyDown (KeyCode.Escape)) 
 			{
 				switchInstructions();
@@ -540,6 +535,7 @@ public class tester : MonoBehaviour {
 					}
 					 //hopefully temporary, 
 					door.SetActive (false);
+					display.SetActive (false);
 
 					state = State.LEVEL_TRANSITION;
 					transitionT = 0;
@@ -549,7 +545,7 @@ public class tester : MonoBehaviour {
 					if(!player.keyLook)
 					{
 						//maybe rethink this.
-						if (Input.GetKeyDown ("q")) 
+						if (Input.GetKeyDown(KeyCode.Q)) 
 						{
 							if (player.door != null) 
 							{ 
@@ -616,6 +612,11 @@ public class tester : MonoBehaviour {
 						codeObject.CheckRefactor (player.keyList [currentKey].type, correctRefactor);
 					}
 
+					else if (Input.GetKeyDown(KeyCode.Q)) 
+					{
+						switchMode ();
+					}
+
 					//TODO delete this
 					if (Input.GetKeyDown ("up"))
 					{
@@ -674,6 +675,8 @@ public class tester : MonoBehaviour {
 					player.enabled = true;
 
 					SetKeys ();
+
+					display.SetActive (true);
 				}
 			} 
 			else 

@@ -133,7 +133,7 @@ public class PlayerController : MonoBehaviour {
 		float snapDistance = 0.2f;
 		Vector2 wah = rb2d.position - position;
 		//wah.m
-		if ((rb2d.position - position).magnitude <= moveSpeed) 
+		if ((rb2d.position - position).magnitude <= moveSpeed)  //try speed * Time.deltaTime, this doesn't work
 		{
 			transform.position = position;
 			direction = Vector2.zero;

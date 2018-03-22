@@ -41,6 +41,48 @@ int main()
 	bool PlayerOne = true;
 	while (!isGameOver(!PlayerOne))
 	{
+	</correctcode>
+</block>
+
+<block>
+
+<feedback>
+
+<hint id = "1">
+This variable already has an appropriate name, 
+so there is no immediate reason to rename it.
+</hint>
+
+</feedback>
+
+<smellcode refactorType = "2">
+
+		bool <smell id = "0">aBool</smell> = false;
+		int <smell id = "1">colToPlay</smell> = -1;
+		//ask current player for column until valid and available
+		//column is selected
+		while (!aBool)
+		{
+			cout &lt;&lt; "Player ";
+			if (PlayerOne)
+			{
+				cout &lt;&lt; "1";
+			}
+			else
+			{
+				cout &lt;&lt; "2";
+			}
+			cout &lt;&lt; ": Select a column (0-6) to play: ";
+			cin &gt;&gt; colToPlay;
+			aBool = addPiece(colToPlay, PlayerOne);
+			if (!aBool)
+			{
+				cout &lt;&lt; "Bad column value! Try again." &lt;&lt; endl;
+			}
+		}
+</smellcode>
+
+<correctcode>
 		bool validCol = false;
 		int colToPlay = -1;
 		//ask current player for column until valid and available
@@ -64,7 +106,12 @@ int main()
 				cout &lt;&lt; "Bad column value! Try again." &lt;&lt; endl;
 			}
 		}
+</correctcode>
 
+</block>
+
+<block>
+<correctcode>
 		displayBoard();
 		PlayerOne = !PlayerOne;
 	}
@@ -79,7 +126,9 @@ int main()
 
 <feedback>
 
-<hint id = "1">While this is a magic number, it is not the most frequently occurring number</hint>
+<hint id = "1">While this is a magic number, 
+it is not the most frequently occurring number
+</hint>
 
 </feedback>
 
@@ -141,75 +190,7 @@ void displayBoard()
 </block>
 
 <block>
-
-<feedback>
-
-<hint id = "1">I can't think of an appropriate hint for this right now</hint>
-
-</feedback>
-
-<smellcode refactorType = "1">
-bool addPiece(int col, bool isPlayer1)
-{
-	//check if col is 0-6
-	<smell id = "1">if ((col &lt; 0) || (col &gt; 6))
-	{
-		return false;
-	}</smell>
-	//check if col is full
-	<smell id = "1">else if (board[col][0] != '-')
-	{
-		return false;
-	}</smell>
-	else
-	{
-		for (int row = 5; row &gt;= 0; row--)
-		{
-			if (board[col][row] == '-')
-			{
-				<smell id = "0">if (isPlayer1)
-				{
-					board[col][row] = 'X';
-				}
-				else
-				{
-					board[col][row] = 'O';
-				}</smell>
-				break;
-			}
-		}
-		return true;
-	}
-}
-
-bool isGameOver(bool isPlayer1)
-{
-	char currPiece;
-	<smell id = "0">if (isPlayer1)
-	{
-		currPiece = 'X';
-	}
-	else
-	{
-		currPiece = 'O';
-	}</smell>
-</smellcode>
-
 <correctcode>
-char getCurrentPiece(bool isPlayer1)
-{
-	char currentPiece;
-	if (isPlayer1)
-	{
-		currentPiece = 'X';
-	}
-	else
-	{
-		currentPiece = 'O';
-	}
-	return currentPiece;
-}
-
 bool addPiece(int col, bool isPlayer1)
 {
 	//check if col is 0-6
@@ -228,27 +209,73 @@ bool addPiece(int col, bool isPlayer1)
 		{
 			if (board[col][row] == '-')
 			{
-				board[col][row] = getCurrentPiece(isPlayer1);
+				if (isPlayer1)
+				{
+					board[col][row] = 'X';
+				}
+				else
+				{
+					board[col][row] = 'O';
+				}
 				break;
 			}
 		}
 		return true;
 	}
 }
-
-bool isGameOver(bool isPlayer1)
-{
-	char currPiece = getCurrentPiece(isPlayer1);
 </correctcode>
-
 </block>
 
 <block>
-<correctcode>
-	//Check if current player has won
-	//4 pieces horizontally -- naive solution
+
+<feedback>
+
+<hint id = "1">While this piece of code could be extracted into a method, it is not the most appropriate piece of code to extract</hint>
+
+</feedback>
+
+<smellcode refactorType = "1">
+
+
+bool isGameOver(bool isPlayer1)
+{
+	char currPiece;
+	<smell id = "1">if (isPlayer1)
+	{
+		currPiece = 'X';
+	}
+	else
+	{
+		currPiece = 'O';
+	}</smell>
 
 	//Loop through all of the rows
+	<smell id = "0">for (int r = 0; r &lt; ROWS; r++)
+	{
+		int counter = 0;
+		for (int i = 0; i &lt; COLUMNS; i++)
+		{
+			if (board[i][r] == currPiece)
+			{
+				counter++;
+			}
+			else
+			{
+				counter = 0;
+			}
+			if (counter == 4)
+			{
+				declareWinner(isPlayer1);
+				return true;
+			}
+		}
+	}</smell>
+</smellcode>
+
+<correctcode>
+
+bool checkRows(char currPiece, bool isPlayer1)
+{
 	for (int r = 0; r &lt; ROWS; r++)
 	{
 		int counter = 0;
@@ -269,6 +296,35 @@ bool isGameOver(bool isPlayer1)
 			}
 		}
 	}
+	return false;
+}
+
+bool isGameOver(bool isPlayer1)
+{
+	char currPiece;
+
+	if (isPlayer1)
+	{
+		currPiece = 'X';
+	}
+	else
+	{
+		currPiece = 'O';
+	}
+
+	if (checkRows(currPiece, isPlayer1))
+	{
+		return true;
+	}
+</correctcode>
+
+</block>
+
+<block>
+<correctcode>
+	//Check if current player has won
+	//4 pieces horizontally -- naive solution
+
 	//4 pieces vertically
 	for (int c = 0; c &lt; COLUMNS; c++)
 	{
