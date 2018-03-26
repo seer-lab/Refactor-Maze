@@ -70,14 +70,6 @@ public class PlayerController : MonoBehaviour {
 			direction.x = 1;
 		}
 	}
-
-	void FixedUpdate()
-	{
-		if (moving) 
-		{
-			move ();
-		}
-	}
 	
 	void Update () 
 	{
@@ -109,13 +101,11 @@ public class PlayerController : MonoBehaviour {
 				}
 			}
 		}
-	}
-
-	void LateUpdate()
-	{
-		if (moving) 
+		else
 		{
+			move ();
 			snapToPosition (newPosition);
+
 		}
 	}
 
@@ -130,10 +120,7 @@ public class PlayerController : MonoBehaviour {
 	//need to rework this, it's currently possible to overshoot the position and never stop
 	public void snapToPosition(Vector2 position)
 	{
-		float snapDistance = 0.2f;
-		Vector2 wah = rb2d.position - position;
-		//wah.m
-		if ((rb2d.position - position).magnitude <= moveSpeed)  //try speed * Time.deltaTime, this doesn't work
+		if ((rb2d.position - position).magnitude <= speed * Time.deltaTime)  //try speed * Time.deltaTime, this doesn't work
 		{
 			transform.position = position;
 			direction = Vector2.zero;

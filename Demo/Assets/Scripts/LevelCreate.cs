@@ -32,6 +32,7 @@ public class LevelCreate : MonoBehaviour {
 	public GameObject door; 
 
 	public GameObject player;
+	private GameObject playerInstance;
 	public GameObject mainCamera;
 
 	public GameObject tester;
@@ -144,14 +145,23 @@ public class LevelCreate : MonoBehaviour {
 		return randomPosition;
 	}
 
-	//Clear out a position for a key and set a new one
-	public void NewKeyPosition(int currentLevel, List<int> keyList) 
+	public void NewKeyPosition(int currentLevel, List<int> keyList, bool reset) 
 	{
-		//Add back the key's position to the list of valid positions
-		for (int i = 0; i < theKeys.Count; i++) 
+		//If the level is being reset, add the key positions back to the list of valid positions
+		if (reset) 
 		{
-			vPositions [currentLevel].Add (theKeys[i].transform.localPosition);
-			theKeys [i].SetActive (false);
+			//Add back the key's position to the list of valid positions
+			for (int i = 0; i < theKeys.Count; i++) 
+			{
+				vPositions [currentLevel].Add (theKeys [i].transform.localPosition); 
+				theKeys [i].SetActive (false);
+			}
+		}
+		//Else if it is a new level, remove the player's start positon from the list
+		//This prevents keys from spawning on top of the player
+		else 
+		{
+			vPositions [currentLevel].Remove (playerInstance.transform.localPosition);
 		}
 
 		for (int i = 0; i < currentLevel + 1; i++) 
@@ -506,29 +516,11 @@ public class LevelCreate : MonoBehaviour {
 		BoardSetup ();
 		SetDoors ();
 
-		GameObject instance;
-		//need to rework this
-	//	int currentLevel = 0;
-	/*	for (int i = 0; i < mazesX; i++) 
-		{
-			for (int c = 0; c < mazesY; c++) 
-			{
-				BackTracker(new Vector2(i * (columns + 1), c * (rows + 1)), 
-					new Vector2(columns + (columns + 1) * i, rows + (rows + 1) * c), currentLevel);
-				for (int k = 0; k < 3; k++) 
-				{
-					instance = Instantiate (key, RandomPosition (currentLevel), Quaternion.identity);
-					instance.transform.SetParent (level);
-				}
-				currentLevel++;
-			}
-		}*/
-
 		Vector2 playerStart = new Vector2 (columns / 2, rows / 2);
 		vPositions[0].Remove (playerStart);
 
-		instance = Instantiate (player, playerStart, Quaternion.identity);
-		instance.transform.SetParent (level);
+		playerInstance = Instantiate (player, playerStart, Quaternion.identity);
+		playerInstance.transform.SetParent (level);
 		Instantiate (tester, Vector2.zero, Quaternion.identity);
 
 

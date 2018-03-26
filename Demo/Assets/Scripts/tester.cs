@@ -71,9 +71,6 @@ public class tester : MonoBehaviour {
 
 	public Sprite borderSprite;
 
-//	private Text displayText;
-	private Text interactText;
-
 	public Text legendText;
 
 	private Transform boxHolder; // make the visual boxes easier to manage
@@ -87,6 +84,8 @@ public class tester : MonoBehaviour {
 
 	private int currentKey;
 	private int correctRefactor;
+
+	private int firstLevel = -1;
 
 	//private Vector2 minBound = Vector2.zero;
 	//private Vector2 maxBound = Vector2.zero;
@@ -112,10 +111,16 @@ public class tester : MonoBehaviour {
 		//SetInstructionText ();
 
 		LoadXML ();
-
-		shuffleCodeBlocks ();
+		if (firstLevel >= 0) 
+		{
+			currentBlock = firstLevel;
+		} 
+		else 
+		{
+			shuffleCodeBlocks ();
+			currentBlock = 0;
+		}
 		startY = display.transform.position.y;
-		currentBlock = 0;
 		updateDisplay ();
 
 		//level create function here
@@ -145,8 +150,6 @@ public class tester : MonoBehaviour {
 
 		codeObject = (TextTester)GameObject.Find("Code").GetComponent (typeof(TextTester));
 
-		interactText = (Text)codeObject.GetComponent (typeof(Text));
-
 		player = (PlayerController)GameObject.FindGameObjectWithTag("Player").GetComponent(typeof(PlayerController));
 
 		display = GameObject.Find ("GreaterDisplay");
@@ -172,6 +175,7 @@ public class tester : MonoBehaviour {
 		//assuming that correct key stuff will be in here somewhere
 
 		//This is going to be every type of refactor technique, will all be listed somewhere in the xml file
+
 		//At the top of a smell block(maybe?) a the correct technique will be listed.
 		keyTypes.Capacity = 4;
 
@@ -188,32 +192,51 @@ public class tester : MonoBehaviour {
 
 		foreach (XmlNode node in levelnode.ChildNodes) 
 		{
-			GameObject instance = Instantiate (displayInstance, display.transform);
-
-			displayInstances.Add (instance);
-			bool smell = false;
-			foreach (XmlNode blockNode in node.ChildNodes) 
+			if (node.Name == "firstLevel")
 			{
-				if (blockNode.Name == "smellcode")
+				int first;
+				if (int.TryParse (node.InnerText, out first)) 
 				{
-					displayCodeBlocks.Add (blockNode.InnerText);
-					smellyCode.Add (blockNode);
-					smell = true;
-					codeBlocks.Add (refactorBlocks);
-
-					numberOfLevels++;
+					firstLevel = first;
 				} 
-				else if (blockNode.Name == "correctcode") 
+				else 
 				{
-					correctCode.Add (blockNode.InnerText);
-					if (!smell) 
-					{
-						smellyCode.Add (blockNode); //keeps the two lists parallel. Not crazy about this solution
-						displayCodeBlocks.Add (blockNode.InnerText);
-					}
+					print("Problem loading first level, randomizing levels");
 				}
 			}
-			refactorBlocks++;
+			else
+			{
+				GameObject instance = Instantiate (displayInstance, display.transform);
+
+				displayInstances.Add (instance);
+				bool smell = false;
+				foreach (XmlNode blockNode in node.ChildNodes) 
+				{
+					if (blockNode.Name == "smellcode")
+					{
+						displayCodeBlocks.Add (blockNode.InnerText);
+						smellyCode.Add (blockNode);
+						smell = true;
+						codeBlocks.Add (refactorBlocks);
+						/*
+						 * if smell attribute level
+						 * firstLevel = level
+						 */ 
+
+						numberOfLevels++;
+					} 
+					else if (blockNode.Name == "correctcode") 
+					{
+						correctCode.Add (blockNode.InnerText);
+						if (!smell) 
+						{
+							smellyCode.Add (blockNode); //keeps the two lists parallel. Not crazy about this solution
+							displayCodeBlocks.Add (blockNode.InnerText);
+						}
+					}
+				}
+				refactorBlocks++;
+			}
 		}
 	}
 
@@ -221,15 +244,15 @@ public class tester : MonoBehaviour {
 	{		
 		codeObject.getBoxes (smellyCode[codeBlocks[currentBlock]]);
 
-		SetKeys ();
+		SetKeys (true);
 	}
 
-	void SetKeys()
+	void SetKeys(bool reset)
 	{
 	
 		SetKeyTypes ();
 
-		((LevelCreate)GameObject.Find ("LevelCreator").GetComponent (typeof(LevelCreate))).NewKeyPosition (currentLevel, levelKeys);
+		((LevelCreate)GameObject.Find ("LevelCreator").GetComponent (typeof(LevelCreate))).NewKeyPosition (currentLevel, levelKeys, reset);
 
 		player.keyList.Clear ();
 	}
@@ -477,11 +500,14 @@ public class tester : MonoBehaviour {
 		
 	public void nextBlock()
 	{
-		currentBlock++;
-		if (currentBlock >= codeBlocks.Count)
+		if (firstLevel < 0 || (firstLevel >= 0 && currentLevel > 0)) 
 		{
-			currentBlock = 0;
-			shuffleCodeBlocks ();
+			currentBlock++;
+			if (currentBlock >= codeBlocks.Count) 
+			{
+				currentBlock = 0;
+				shuffleCodeBlocks ();
+			}
 		}
 		SetLevel ();
 		updateDisplay ();
@@ -500,8 +526,12 @@ public class tester : MonoBehaviour {
 		case State.PLAYING:
 			if (Input.GetKeyDown (KeyCode.Escape)) 
 			{
-				switchInstructions();
+				switchInstructions ();
 				state = State.INSTRUCTIONS;
+			}
+			if (Input.GetKeyDown (KeyCode.K)) 
+			{
+				SetKeys (true);
 			}
 
 			if (level.active) 
@@ -602,7 +632,7 @@ public class tester : MonoBehaviour {
 					if (Input.anyKeyDown)
 					{
 						switchMode ();
-						nextBlock();
+						nextBlock ();
 					}
 					break;
 
@@ -674,7 +704,7 @@ public class tester : MonoBehaviour {
 						new Vector2 (levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
 					player.enabled = true;
 
-					SetKeys ();
+					SetKeys (false);
 
 					display.SetActive (true);
 				}

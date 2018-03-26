@@ -1,17 +1,12 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\test7.xml">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\LevelCreate.cs">
     <Files>
-      <File FileName="Assets\Scripts\tester.cs" Line="677" Column="12" />
-      <File FileName="Assets\Scripts\PlayerController.cs" Line="136" Column="106" />
-      <File FileName="Assets\Scripts\KeyProperties.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\EndScript.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\StartGame.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\LevelCreate.cs" Line="506" Column="13" />
-      <File FileName="Assets\Scripts\TextTester.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\TextFunctions.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\test7.xml" Line="53" Column="1" />
-      <File FileName="Assets\Scripts\backup.xml" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\tester.cs" Line="152" Column="3" />
+      <File FileName="Assets\Scripts\LevelCreate.cs" Line="404" Column="7" />
+      <File FileName="Assets\Scripts\TextFunctions.cs" Line="12" Column="28" />
+      <File FileName="Assets\Scripts\test7.xml" Line="11" Column="24" />
+      <File FileName="Assets\Scripts\PlayerController.cs" Line="72" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

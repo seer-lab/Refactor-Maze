@@ -1,8 +1,12 @@
 ﻿<code>
 
+<firstLevel>
+0
+</firstLevel>
+
 <block>
 
-<correctcode>
+<correctcode> 
 #include &lt;iostream&gt;
 #include &lt;string&gt;
 
@@ -230,7 +234,8 @@ bool addPiece(int col, bool isPlayer1)
 
 <feedback>
 
-<hint id = "1">While this piece of code could be extracted into a method, it is not the most appropriate piece of code to extract</hint>
+<hint id = "1">While this piece of code could be extracted into a method, 
+it is not the most appropriate piece of code to extract</hint>
 
 </feedback>
 
