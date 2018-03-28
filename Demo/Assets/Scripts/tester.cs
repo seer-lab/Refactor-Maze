@@ -108,8 +108,6 @@ public class tester : MonoBehaviour {
 		Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
 			new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
 
-		//SetInstructionText ();
-
 		LoadXML ();
 		if (firstLevel >= 0) 
 		{
@@ -475,7 +473,7 @@ public class tester : MonoBehaviour {
 					child.gameObject.SetActive (true);
 				}
 			} 
-			else 
+			else
 			{
 				child.gameObject.SetActive (false);
 			}

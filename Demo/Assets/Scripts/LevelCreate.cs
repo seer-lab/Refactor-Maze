@@ -30,6 +30,7 @@ public class LevelCreate : MonoBehaviour {
 	public GameObject wallTiles;
 	public GameObject key;
 	public GameObject door; 
+	public GameObject background;
 
 	public GameObject player;
 	private GameObject playerInstance;
@@ -491,6 +492,20 @@ public class LevelCreate : MonoBehaviour {
 		}
 	}
 
+	void setBackGround()
+	{
+		for (int i = 0; i <= mazesX; i++) 
+		{
+			for (int c = 0; c <= mazesY; c++) 
+			{
+				Vector2 p = new Vector2 (mainCamera.transform.position.x + i * 32, (mainCamera.transform.position.y - 1) + c * 32);
+				p = new Vector2 (p.x + level.transform.position.x, p.y);
+				GameObject instance = Instantiate (background, p, Quaternion.identity);
+				//instance.transform.SetParent (level);
+			}
+		}
+	}
+
 	void Start () 
 	{
 		//TODO make a function to be called from tester that sets the height and width and what not
@@ -525,10 +540,14 @@ public class LevelCreate : MonoBehaviour {
 
 
 
+
 		mainCamera.transform.position = new Vector3 (columns / 2, rows / 2, -10.0f);
 		//mainCamera.GetComponent<Camera> ().orthographicSize = (columns/2) + 1.5f;
-		mainCamera.GetComponent<Camera> ().orthographicSize = 17.0f;
+		mainCamera.GetComponent<Camera> ().orthographicSize = 17.0f; //number found through experimentation
 
 		level.transform.position = new Vector3 (-11.2f, level.transform.position.y, level.transform.position.z);
+
+		setBackGround ();
+
 	}
 }

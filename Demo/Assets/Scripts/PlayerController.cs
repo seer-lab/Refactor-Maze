@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour {
 	public Vector2 direction;
 
 	private Rigidbody2D rb2d;
+	private SpriteRenderer spriteRenderer;
+	private Animator animator;
+
 	public GameObject heldSmell;
 	public GameObject nearSmell;
 
@@ -35,6 +38,10 @@ public class PlayerController : MonoBehaviour {
 	void Start () 
 	{
 		rb2d = GetComponent<Rigidbody2D>();
+		spriteRenderer = GetComponent<SpriteRenderer> ();
+		animator = GetComponent<Animator> ();
+		animator.enabled = true;
+		animator.SetInteger ("xDirection", 1);
 
 		nearSmell = null;
 		heldSmell = null;
@@ -68,6 +75,7 @@ public class PlayerController : MonoBehaviour {
 		else if (Input.GetKey ("right")) 
 		{
 			direction.x = 1;
+			print (moving);
 		}
 	}
 	
@@ -98,7 +106,12 @@ public class PlayerController : MonoBehaviour {
 				if (hit.transform == null) 
 				{
 					moving = true;
+					animator.enabled = true;
 				}
+			}
+			else
+			{
+				animator.enabled = false;
 			}
 		}
 		else
@@ -107,6 +120,13 @@ public class PlayerController : MonoBehaviour {
 			snapToPosition (newPosition);
 
 		}
+		animator.SetInteger ("xDirection", (int)direction.x);
+		animator.SetInteger ("yDirection", (int)direction.y);
+	}
+
+	void LateUpdate()
+	{
+		
 	}
 
 	public void move()
@@ -125,6 +145,8 @@ public class PlayerController : MonoBehaviour {
 			transform.position = position;
 			direction = Vector2.zero;
 			moving = false;
+
+		//	animator.StopPlayback ();
 		}
 		/*if (direction.x > 0)
 		{
