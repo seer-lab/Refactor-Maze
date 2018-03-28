@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour {
 	public Vector2 direction;
 
 	private Rigidbody2D rb2d;
-	private SpriteRenderer spriteRenderer;
 	private Animator animator;
 
 	public GameObject heldSmell;
@@ -38,7 +37,6 @@ public class PlayerController : MonoBehaviour {
 	void Start () 
 	{
 		rb2d = GetComponent<Rigidbody2D>();
-		spriteRenderer = GetComponent<SpriteRenderer> ();
 		animator = GetComponent<Animator> ();
 		animator.enabled = true;
 		animator.SetInteger ("xDirection", 1);
@@ -75,7 +73,6 @@ public class PlayerController : MonoBehaviour {
 		else if (Input.GetKey ("right")) 
 		{
 			direction.x = 1;
-			print (moving);
 		}
 	}
 	

@@ -60,7 +60,6 @@ so there is no immediate reason to rename it.
 </feedback>
 
 <smellcode refactorType = "2">
-
 		bool <smell id = "0">aBool</smell> = false;
 		int <smell id = "1">colToPlay</smell> = -1;
 		//ask current player for column until valid and available

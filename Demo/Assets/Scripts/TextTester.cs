@@ -227,6 +227,7 @@ public class TextTester : MonoBehaviour
 		Vector2 r = new Vector2 (g.verts [what * 4 + 2].position.x, g.verts [what * 4 + 2].position.y);
 
 		bottom = textComponent.transform.TransformPoint (r).y;
+		top = textComponent.transform.position.y;
 	}
 
 	void drawBox(Vector2 minBound, Vector2 maxBound, int offset)

@@ -500,8 +500,7 @@ public class LevelCreate : MonoBehaviour {
 			{
 				Vector2 p = new Vector2 (mainCamera.transform.position.x + i * 32, (mainCamera.transform.position.y - 1) + c * 32);
 				p = new Vector2 (p.x + level.transform.position.x, p.y);
-				GameObject instance = Instantiate (background, p, Quaternion.identity);
-				//instance.transform.SetParent (level);
+				Instantiate (background, p, Quaternion.identity);
 			}
 		}
 	}
@@ -537,9 +536,6 @@ public class LevelCreate : MonoBehaviour {
 		playerInstance = Instantiate (player, playerStart, Quaternion.identity);
 		playerInstance.transform.SetParent (level);
 		Instantiate (tester, Vector2.zero, Quaternion.identity);
-
-
-
 
 		mainCamera.transform.position = new Vector3 (columns / 2, rows / 2, -10.0f);
 		//mainCamera.GetComponent<Camera> ().orthographicSize = (columns/2) + 1.5f;

@@ -50,7 +50,7 @@ public class tester : MonoBehaviour {
 	private float mazeCameraSize;
 	//Found these numbers through experimentation
 	private float codeCameraSize = 15;
-	private float codeCameraHeight = -14;
+	private float codeCameraHeight = 60;
 
 	private int mazeWidth;
 	private int mazeHeight;
@@ -77,6 +77,7 @@ public class tester : MonoBehaviour {
 
 	private GameObject textBox;
 
+	private GameObject levelDisplay;
 
 	public List<int> keyTypes = new List<int>();
 
@@ -145,6 +146,7 @@ public class tester : MonoBehaviour {
 
 		//Need to scale the transform down a bit to prevent the text from looking blurry on bigger screens
 		code.transform.localScale = new Vector3 (0.5f, 0.5f, 1.0f);
+		code.transform.position = new Vector3 (code.transform.position.x, 60, code.transform.position.z);
 
 		codeObject = (TextTester)GameObject.Find("Code").GetComponent (typeof(TextTester));
 
@@ -152,10 +154,11 @@ public class tester : MonoBehaviour {
 
 		display = GameObject.Find ("GreaterDisplay");
 
-		GameObject whatever = GameObject.Find ("Legend");
+		levelDisplay = GameObject.Find ("LevelDisplay");
 
-		legendText = whatever.GetComponentInChildren<Text>();
-		whatever.gameObject.transform.SetParent (code.transform);
+		levelDisplay.GetComponentInChildren<Text> ().text = "Level: 1";
+
+		legendText = GameObject.Find ("Legend").GetComponentInChildren<Text>();
 	}
 
 	//Camera information
@@ -164,6 +167,7 @@ public class tester : MonoBehaviour {
 		mainCamera = Camera.main;
 		levelCameraPosition = mainCamera.transform.position;
 		mazeCameraSize = mainCamera.orthographicSize;
+		codeCameraHeight = code.transform.position.y - 10;
 		codeCameraPosition = new Vector3(levelCameraPosition.x, codeCameraHeight, levelCameraPosition.z);
 	}
 
@@ -276,29 +280,6 @@ public class tester : MonoBehaviour {
 			randomKeys.RemoveAt (index);
 		}
 	}
-
-	private void SetInstructionText()
-	{
-		GameObject dI = Instantiate (displayInstance, mainCamera.transform);
-		Text displayText = dI.GetComponentInChildren<Text> ();
-		displayText.text = "";
-		displayText.text += "<color=#000000ff>";
-		displayText.text += "Move with the arrow keys\nOpen doors with the q key";
-		displayText.text += "</color>";
-
-		//Normally this is done in the parent display object, but as this is not a child of that object, it's done here
-		dI.transform.localScale = new Vector3 (0.5f, 0.5f, 1.0f);
-		//displayText.fontSize *= 2;
-
-		Vector2 min = Vector2.zero;		
-		Vector2 max = Vector2.zero;
-
-		TextFunctions.getTextBounds (ref min, ref max, displayText);
-
-		TextFunctions.drawBox (min, max, 1, dI.transform, borderSprite);
-
-	}
-
 	private void shuffleCodeBlocks()
 	{
 		//Fisher-Yates shuffle
@@ -376,7 +357,7 @@ public class tester : MonoBehaviour {
 		//minBound = new Vector2 (0, -60);
 		//maxBound = new Vector2 (40, 0);
 
-		Vector2 bRight = new Vector2 (maxBound.x + 1, minBound.y - 1);
+		Vector2 bRight = new Vector2 (maxBound.x + 3, minBound.y - 1);
 		Vector2 uLeft = new Vector2 (minBound.x - 1, maxBound.y + 1);
 
 		Vector2 size = bRight - uLeft;
@@ -549,7 +530,7 @@ public class tester : MonoBehaviour {
 						levelCameraPosition.z);
 
 					door.tag = "Wall";
-
+					door.GetComponent<SpriteRenderer>().color = Color.black;
 
 					if (cameraTarget.x > levelCameraPosition.x || cameraTarget.y > levelCameraPosition.y) 
 					{
@@ -572,17 +553,17 @@ public class tester : MonoBehaviour {
 				{
 					if(!player.keyLook)
 					{
-						//maybe rethink this.
-						if (Input.GetKeyDown(KeyCode.Q)) 
+						if (player.keyList.Count > 0)
 						{
-							if (player.door != null) 
-							{ 
-								if (player.keyList.Count > 0)
-								{
+							legendText.text = "Refactor: " + GetKeyName ();
+							//maybe rethink this.
+							if (Input.GetKeyDown(KeyCode.Q)) 
+							{
+								if (player.door != null) 
+								{ 
 									door = player.door;
 									switchMode ();
 									currentKey = 0;
-									legendText.text = "Refactor: " + GetKeyName ();
 										
 									codeObject.state = TextTester.State.SELECTING;
 								} 
@@ -617,7 +598,7 @@ public class tester : MonoBehaviour {
 						{ 
 							door.SetActive (false);
 						}
-
+						legendText.transform.root.gameObject.SetActive (false);
 						switchMode ();
 						removeBlock ();
 						drawBoxes ();
@@ -630,6 +611,7 @@ public class tester : MonoBehaviour {
 					if (Input.anyKeyDown)
 					{
 						switchMode ();
+						legendText.text = "Refactor: ";
 						nextBlock ();
 					}
 					break;
@@ -643,27 +625,7 @@ public class tester : MonoBehaviour {
 					else if (Input.GetKeyDown(KeyCode.Q)) 
 					{
 						switchMode ();
-					}
-
-					//TODO delete this
-					if (Input.GetKeyDown ("up"))
-					{
-						currentKey++;
-						if (currentKey >= player.keyList.Count) 
-						{
-							currentKey = 0;
-						}
-						legendText.text = "Refactor: " + GetKeyName ();
-					} 
-					else if (Input.GetKeyDown ("down")) 
-					{
-						currentKey--;
-						if (currentKey < 0) 
-						{
-							currentKey = player.keyList.Count - 1;
-						}
-						legendText.text = "Refactor: " + GetKeyName ();
-					} 					
+					}				
 					goto case TextTester.State.LOOKING;
 
 				case TextTester.State.LOOKING:
@@ -685,26 +647,7 @@ public class tester : MonoBehaviour {
 				}
 				else
 				{
-
-					levelTransitionTimer = 0.0f;
-					state = State.PLAYING;
-					//Snap to correct position
-					player.transform.position = levelStart;
-
-					player.direction = Vector2.zero;
-					mainCamera.transform.position = cameraTarget;
-
-					levelCameraPosition = cameraTarget;
-
-					//	door.SetActive (true);
-
-					Cull (new Vector2 (levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
-						new Vector2 (levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
-					player.enabled = true;
-
-					SetKeys (false);
-
-					display.SetActive (true);
+					nextLevel ();
 				}
 			} 
 			else 
@@ -724,6 +667,33 @@ public class tester : MonoBehaviour {
 		}
 	}
 
+	void nextLevel()
+	{
+		levelTransitionTimer = 0.0f;
+		state = State.PLAYING;
+		//Snap to correct position
+		player.transform.position = levelStart;
+
+		player.direction = Vector2.zero;
+		mainCamera.transform.position = cameraTarget;
+
+		levelCameraPosition = cameraTarget;
+
+		//	door.SetActive (true);
+
+		Cull (new Vector2 (levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
+			new Vector2 (levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
+		player.enabled = true;
+
+		SetKeys (false);
+
+		display.SetActive (true);
+		legendText.transform.root.gameObject.SetActive (true);
+
+		levelDisplay.GetComponentInChildren<Text> ().text = "Level: "+ (currentLevel + 1);
+		legendText.text = "Refactor: ";
+	}
+
 	private void switchInstructions()
 	{
 		showInstructions = !showInstructions;
@@ -740,6 +710,7 @@ public class tester : MonoBehaviour {
 		onOff = !onOff;
 		level.SetActive (onOff);
 		display.SetActive (onOff);
+		levelDisplay.SetActive (onOff);
 		code.SetActive (!onOff);
 
 		if (code.active) 
