@@ -15,7 +15,7 @@ public class TextFlicker : MonoBehaviour {
 	void Start () 
 	{
 		textComponent = GetComponent<Text> ();
-		Screen.SetResolution (800, 600, false);
+		//Screen.SetResolution (800, 600, false);
 
 	}
 	

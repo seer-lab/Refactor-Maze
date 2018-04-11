@@ -179,9 +179,9 @@ public class tester : MonoBehaviour {
 		//This is going to be every type of refactor technique, will all be listed somewhere in the xml file
 
 		//At the top of a smell block(maybe?) a the correct technique will be listed.
-		keyTypes.Capacity = 4;
+		keyTypes.Capacity = 3;
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			keyTypes.Add (i);
 		}
@@ -508,10 +508,7 @@ public class tester : MonoBehaviour {
 				switchInstructions ();
 				state = State.INSTRUCTIONS;
 			}
-			if (Input.GetKeyDown (KeyCode.K)) 
-			{
-				SetKeys (true);
-			}
+			
 
 			if (level.active) 
 			{
@@ -590,7 +587,7 @@ public class tester : MonoBehaviour {
 
 					transitionTimer += Time.deltaTime;
 
-					if (Input.GetKey("e"))
+                    if (Input.GetKey(KeyCode.Q))
 					{
 						transitionTimer = 0.0f;
 

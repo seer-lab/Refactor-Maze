@@ -279,12 +279,15 @@ public class TextTester : MonoBehaviour
 			}
 		}
 	}
+    private void Awake()
+    {
+        textComponent = GetComponent<Text> ();
+        boxHolder = new GameObject ("boxHolder").transform;
+    }
 
 	private void Start() 
 	{
-		boxHolder = new GameObject ("boxHolder").transform;
 		boxHolder.SetParent (this.transform);
-		textComponent = GetComponent<Text> ();
 		mainCamera = Camera.main;
 
 	}
