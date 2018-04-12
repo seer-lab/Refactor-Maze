@@ -78,7 +78,6 @@ public class TextTester : MonoBehaviour
 		Vector2 extents = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
 		generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
 
-		//TODO need to take into account empty characters
 		//Calculate bounds of the first character
 		int startI = text.Length - node.InnerText.Length;
 		Vector2 upperLeft = new Vector2 (generator.verts [startI * 4].position.x, generator.verts [startI * 4].position.y);
@@ -133,7 +132,6 @@ public class TextTester : MonoBehaviour
 		Vector2 extents = textComponent.gameObject.GetComponent<RectTransform>().rect.size;
 		generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
 
-		//TODO need to take into account empty characters
 		//Calculate bounds of the first character
 		int startI = 0;
 		Vector2 upperLeft = new Vector2 (generator.verts [startI * 4].position.x, generator.verts [startI * 4].position.y);
@@ -259,8 +257,7 @@ public class TextTester : MonoBehaviour
 			{
 				Rect rectangle = entry.Value [i];
 
-				//TODO rename this
-				Vector2 a = new Vector3 (rectangle.x, rectangle.y);
+				Vector2 rectPosition = new Vector3 (rectangle.x, rectangle.y);
 
 				GameObject smellBox = new GameObject("test");
 				smellBox.tag = "Exit";
@@ -272,7 +269,8 @@ public class TextTester : MonoBehaviour
 
 				renderer.sortingLayerName = "BackGround";
 
-				smellBox.transform.position = new Vector2(a.x + rectangle.width * 0.5f, a.y + rectangle.height * 0.5f); //center the box
+                smellBox.transform.position = new Vector2(rectPosition.x + rectangle.width *
+                    0.5f, rectPosition.y + rectangle.height * 0.5f); //center the box
 
 				smellBox.transform.SetParent (boxHolder);
 

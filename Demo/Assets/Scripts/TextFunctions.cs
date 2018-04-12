@@ -55,7 +55,6 @@ public static class TextFunctions
 		Vector2 extents = textComponent.gameObject.GetComponent<RectTransform> ().rect.size;
 		generator.Populate (textComponent.text, textComponent.GetGenerationSettings (extents));
 
-		//TODO need to take into account empty characters
 		//Calculate bounds of the first character
 		int startI = 0;
 		Vector2 upperLeft = new Vector2 (generator.verts [startI * 4].position.x, generator.verts [startI * 4].position.y);

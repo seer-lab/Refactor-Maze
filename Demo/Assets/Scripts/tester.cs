@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Xml;
 
-
-
 public class tester : MonoBehaviour {
 
 	private bool onOff;
@@ -60,7 +58,7 @@ public class tester : MonoBehaviour {
 	public int currentLevel = 0;
 	private int numberOfLevels = 0;
 
-	public enum State{PLAYING, LEVEL_TRANSITION, INSTRUCTIONS};
+	public enum State{PLAYING, LEVEL_TRANSITION, INSTRUCTIONS, ERROR};
 	public State state;
 
 	private List<int> codeBlocks = new List<int> ();
@@ -88,45 +86,59 @@ public class tester : MonoBehaviour {
 
 	private int firstLevel = -1;
 
-	//private Vector2 minBound = Vector2.zero;
-	//private Vector2 maxBound = Vector2.zero;
+    public string errorString = "";
+    public Text errorText;
 
 	// Use this for initialization
 	void Start () 
 	{
-		state = State.PLAYING;
+        string toLoad = "examples/example.xml";
+        GameObjectSetUp();
 
-		GameObjectSetUp ();
+        if (LoadXML(toLoad))
+        {
+            state = State.PLAYING;
 
-		CameraStart ();
 
-		transitionTimer = 0.0f;
-		levelTransitionTimer = 0.0f;
-		code.SetActive (false);
-		onOff = true;
-		showInstructions = false;
+            CameraStart();
 
-		Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
-			new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
+            transitionTimer = 0.0f;
+            levelTransitionTimer = 0.0f;
+            code.SetActive(false);
+            onOff = true;
+            showInstructions = false;
 
-		LoadXML ();
-		if (firstLevel >= 0) 
-		{
-			currentBlock = firstLevel;
-		} 
-		else 
-		{
-			shuffleCodeBlocks ();
-			currentBlock = 0;
-		}
-		startY = display.transform.position.y;
-		updateDisplay ();
+            Cull(new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
+                new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
+   
+            if (firstLevel >= 0)
+            {
+                currentBlock = firstLevel;
+            }
+            else
+            {
+                shuffleCodeBlocks();
+                currentBlock = 0;
+            }
+            startY = display.transform.position.y;
+            updateDisplay();
 
-		//level create function here
+            //level create function here
 
-		SetLevel ();
+            SetLevel();
 
-		drawBoxes ();
+            drawBoxes();
+        }
+        else
+        {
+            state = State.ERROR;
+            errorText.transform.parent.gameObject.SetActive (true);
+            currentGameObject.SetActive (false);
+            display.SetActive (false);          
+            
+            errorText.text = errorString;
+
+        }
 	}
 
 	void GameObjectSetUp()
@@ -159,6 +171,9 @@ public class tester : MonoBehaviour {
 		levelDisplay.GetComponentInChildren<Text> ().text = "Level: 1";
 
 		legendText = GameObject.Find ("Legend").GetComponentInChildren<Text>();
+
+        errorText = GameObject.Find("ErrorScreen").GetComponentInChildren<Text>();
+        errorText.transform.parent.gameObject.SetActive(false);
 	}
 
 	//Camera information
@@ -171,75 +186,75 @@ public class tester : MonoBehaviour {
 		codeCameraPosition = new Vector3(levelCameraPosition.x, codeCameraHeight, levelCameraPosition.z);
 	}
 
-	void LoadXML()
+    bool LoadXML(string toLoad)
 	{
+        if (System.IO.File.Exists(toLoad))
+        {
+            keyTypes.Capacity = 3;
 
-		//assuming that correct key stuff will be in here somewhere
-
-		//This is going to be every type of refactor technique, will all be listed somewhere in the xml file
-
-		//At the top of a smell block(maybe?) a the correct technique will be listed.
-		keyTypes.Capacity = 3;
-
-		for (int i = 0; i < 3; i++)
-		{
-			keyTypes.Add (i);
-		}
+            for (int i = 0; i < 3; i++)
+            {
+                keyTypes.Add(i);
+            }
 			
-		XmlDocument doc = new XmlDocument();
-		doc.Load ("Assets/Scripts/test7.xml");
+            XmlDocument doc = new XmlDocument();
+            doc.Load(toLoad);
 
-		XmlNode levelnode =  doc.DocumentElement.SelectSingleNode("/code");
-		int refactorBlocks = 0;
+            XmlNode levelnode = doc.DocumentElement.SelectSingleNode("/code");
+            int refactorBlocks = 0;
 
-		foreach (XmlNode node in levelnode.ChildNodes) 
-		{
-			if (node.Name == "firstLevel")
-			{
-				int first;
-				if (int.TryParse (node.InnerText, out first)) 
-				{
-					firstLevel = first;
-				} 
-				else 
-				{
-					print("Problem loading first level, randomizing levels");
-				}
-			}
-			else
-			{
-				GameObject instance = Instantiate (displayInstance, display.transform);
+            foreach (XmlNode node in levelnode.ChildNodes)
+            {
+                if (node.Name == "firstLevel")
+                {
+                    int first;
+                    if (int.TryParse(node.InnerText, out first))
+                    {
+                        firstLevel = first;
+                    }
+                    else
+                    {
+                        print("Problem loading first level, randomizing levels");
+                    }
+                }
+                else
+                {
+                    GameObject instance = Instantiate(displayInstance, display.transform);
 
-				displayInstances.Add (instance);
-				bool smell = false;
-				foreach (XmlNode blockNode in node.ChildNodes) 
-				{
-					if (blockNode.Name == "smellcode")
-					{
-						displayCodeBlocks.Add (blockNode.InnerText);
-						smellyCode.Add (blockNode);
-						smell = true;
-						codeBlocks.Add (refactorBlocks);
-						/*
-						 * if smell attribute level
-						 * firstLevel = level
-						 */ 
+                    displayInstances.Add(instance);
+                    bool smell = false;
+                    foreach (XmlNode blockNode in node.ChildNodes)
+                    {
+                        if (blockNode.Name == "smellcode")
+                        {
+                            displayCodeBlocks.Add(blockNode.InnerText);
+                            smellyCode.Add(blockNode);
+                            smell = true;
+                            codeBlocks.Add(refactorBlocks);
 
-						numberOfLevels++;
-					} 
-					else if (blockNode.Name == "correctcode") 
-					{
-						correctCode.Add (blockNode.InnerText);
-						if (!smell) 
-						{
-							smellyCode.Add (blockNode); //keeps the two lists parallel. Not crazy about this solution
-							displayCodeBlocks.Add (blockNode.InnerText);
-						}
-					}
-				}
-				refactorBlocks++;
-			}
-		}
+                            numberOfLevels++;
+                        }
+                        else if (blockNode.Name == "correctcode")
+                        {
+                            correctCode.Add(blockNode.InnerText);
+                            if (!smell)
+                            {
+                                smellyCode.Add(blockNode); //keeps the two lists parallel. Not crazy about this solution
+                                displayCodeBlocks.Add(blockNode.InnerText);
+                            }
+                        }
+                    }
+                    refactorBlocks++;
+                }
+            }
+            return true;
+        }
+        else
+        {
+            errorString = "Cannot find file " + toLoad;
+            errorString += "\nPress the Escape key to exit";
+            return false;        
+        }
 	}
 
 	void SetLevel ()
@@ -304,7 +319,6 @@ public class tester : MonoBehaviour {
 		{
 			Text displayText = displayInstances[i].GetComponentInChildren<Text> ();
 			displayText.text = "";
-			//TODO set all text to black after completing last block.
 			if (codeBlocks.Count > 0 && i == codeBlocks[currentBlock]) 
 			{
 				TextGenerator generator;
@@ -500,168 +514,178 @@ public class tester : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		switch (state)
-		{
-		case State.PLAYING:
-			if (Input.GetKeyDown (KeyCode.Escape)) 
-			{
-				switchInstructions ();
-				state = State.INSTRUCTIONS;
-			}
+        switch (state)
+        {
+            case State.PLAYING:
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    switchInstructions();
+                    state = State.INSTRUCTIONS;
+                }
 			
 
-			if (level.active) 
-			{
-				if (player.exiting) 
-				{
-					player.enabled = false;
+                if (level.active)
+                {
+                    if (player.exiting)
+                    {
+                        player.enabled = false;
 
-					player.exiting = false;
-					levelStart = new Vector2 (door.transform.position.x + player.direction.x, 
-						door.transform.position.y + player.direction.y);
+                        player.exiting = false;
+                        levelStart = new Vector2(door.transform.position.x + player.direction.x, 
+                            door.transform.position.y + player.direction.y);
 				
-					levelExit = player.transform.position;
+                        levelExit = player.transform.position;
 
-					cameraTarget = new Vector3 (levelCameraPosition.x + (mazeWidth + 1) * player.direction.x,
-						levelCameraPosition.y + (mazeHeight + 1) * player.direction.y,
-						levelCameraPosition.z);
+                        cameraTarget = new Vector3(levelCameraPosition.x + (mazeWidth + 1) * player.direction.x,
+                            levelCameraPosition.y + (mazeHeight + 1) * player.direction.y,
+                            levelCameraPosition.z);
 
-					door.tag = "Wall";
-					door.GetComponent<SpriteRenderer>().color = Color.black;
+                        door.tag = "Wall";
+                        door.GetComponent<SpriteRenderer>().color = Color.black;
 
-					if (cameraTarget.x > levelCameraPosition.x || cameraTarget.y > levelCameraPosition.y) 
-					{
-						Cull (new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
-							new Vector2(cameraTarget.x + (mazeWidth / 2 + 1), cameraTarget.y + (mazeHeight / 2 + 1)));
-					}
-					else
-					{
-						Cull (new Vector2(cameraTarget.x - (mazeWidth / 2 + 1), cameraTarget.y - (mazeHeight / 2 + 1)),
-							new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
-					}
-					 //hopefully temporary, 
-					door.SetActive (false);
-					display.SetActive (false);
+                        if (cameraTarget.x > levelCameraPosition.x || cameraTarget.y > levelCameraPosition.y)
+                        {
+                            Cull(new Vector2(levelCameraPosition.x - (mazeWidth / 2 + 1), levelCameraPosition.y - (mazeHeight / 2 + 1)),
+                                new Vector2(cameraTarget.x + (mazeWidth / 2 + 1), cameraTarget.y + (mazeHeight / 2 + 1)));
+                        }
+                        else
+                        {
+                            Cull(new Vector2(cameraTarget.x - (mazeWidth / 2 + 1), cameraTarget.y - (mazeHeight / 2 + 1)),
+                                new Vector2(levelCameraPosition.x + (mazeWidth / 2 + 1), levelCameraPosition.y + (mazeHeight / 2 + 1)));
+                        }
+                        //hopefully temporary, 
+                        door.SetActive(false);
+                        display.SetActive(false);
 
-					state = State.LEVEL_TRANSITION;
-					transitionT = 0;
-				}
-				else
-				{
-					if(!player.keyLook)
-					{
-						if (player.keyList.Count > 0)
-						{
-							legendText.text = "Refactor: " + GetKeyName ();
-							//maybe rethink this.
-							if (Input.GetKeyDown(KeyCode.Q)) 
-							{
-								if (player.door != null) 
-								{ 
-									door = player.door;
-									switchMode ();
-									currentKey = 0;
+                        state = State.LEVEL_TRANSITION;
+                        transitionT = 0;
+                    }
+                    else
+                    {
+                        if (!player.keyLook)
+                        {
+                            if (player.keyList.Count > 0)
+                            {
+                                legendText.text = "Refactor: " + GetKeyName();
+                                //maybe rethink this.
+                                if (Input.GetKeyDown(KeyCode.Q))
+                                {
+                                    if (player.door != null)
+                                    { 
+                                        door = player.door;
+                                        switchMode();
+                                        currentKey = 0;
 										
-									codeObject.state = TextTester.State.SELECTING;
-								} 
-							}
-						}
-						Vector3 displayPosition = display.transform.position;
-						if (Input.GetKey ("w"))
-						{
-							display.transform.position = new Vector3 (displayPosition.x, displayPosition.y + 1, displayPosition.z);
-						} 
-						else if (Input.GetKey ("s"))
-						{
-							display.transform.position = new Vector3 (displayPosition.x, displayPosition.y - 1, displayPosition.z);
-						} 
-					}
-				}
+                                        codeObject.state = TextTester.State.SELECTING;
+                                    } 
+                                }
+                            }
+                            Vector3 displayPosition = display.transform.position;
+                            if (Input.GetKey("w"))
+                            {
+                                display.transform.position = new Vector3(displayPosition.x, displayPosition.y + 1, displayPosition.z);
+                            }
+                            else if (Input.GetKey("s"))
+                            {
+                                display.transform.position = new Vector3(displayPosition.x, displayPosition.y - 1, displayPosition.z);
+                            } 
+                        }
+                    }
 
-			} 
-			else 
-			{
-				switch (codeObject.state) 
-				{
-				case TextTester.State.CORRECT:
+                }
+                else
+                {
+                    switch (codeObject.state)
+                    {
+                        case TextTester.State.CORRECT:
 
-					transitionTimer += Time.deltaTime;
+                            transitionTimer += Time.deltaTime;
 
-                    if (Input.GetKey(KeyCode.Q))
-					{
-						transitionTimer = 0.0f;
+                            if (Input.GetKey(KeyCode.Q))
+                            {
+                                transitionTimer = 0.0f;
 
-						if (door != null) 
-						{ 
-							door.SetActive (false);
-						}
-						legendText.transform.root.gameObject.SetActive (false);
-						switchMode ();
-						removeBlock ();
-						drawBoxes ();
-					}
+                                if (door != null)
+                                { 
+                                    door.SetActive(false);
+                                }
+                                legendText.transform.root.gameObject.SetActive(false);
+                                switchMode();
+                                removeBlock();
+                                drawBoxes();
+                            }
 
-					goto case TextTester.State.LOOKING;
+                            goto case TextTester.State.LOOKING;
 
-				case TextTester.State.INCORRECT:
+                        case TextTester.State.INCORRECT:
 
-					if (Input.anyKeyDown)
-					{
-						switchMode ();
-						legendText.text = "Refactor: ";
-						nextBlock ();
-					}
-					break;
+                            if (Input.anyKeyDown)
+                            {
+                                switchMode();
+                                legendText.text = "Refactor: ";
+                                nextBlock();
+                            }
+                            break;
 
-				case TextTester.State.SELECTING:
-					if (Input.GetMouseButtonDown (0))
-					{
-						codeObject.CheckRefactor (player.keyList [currentKey].type, correctRefactor);
-					}
+                        case TextTester.State.SELECTING:
+                            if (Input.GetMouseButtonDown(0))
+                            {
+                                codeObject.CheckRefactor(player.keyList[currentKey].type, correctRefactor);
+                            }
+                            else if (Input.GetKeyDown(KeyCode.Q))
+                            {
+                                switchMode();
+                            }				
+                            goto case TextTester.State.LOOKING;
 
-					else if (Input.GetKeyDown(KeyCode.Q)) 
-					{
-						switchMode ();
-					}				
-					goto case TextTester.State.LOOKING;
+                        case TextTester.State.LOOKING:
+                            codeObject.moveCamera();
+                            break;
+                    }
+                }
+                break;
+            case State.LEVEL_TRANSITION:
 
-				case TextTester.State.LOOKING:
-					codeObject.moveCamera ();
-					break;
-				}
-			}
-			break;
-		case State.LEVEL_TRANSITION:
-
-			levelTransitionTimer += Time.deltaTime;
+                levelTransitionTimer += Time.deltaTime;
 			//appropriate messages will be handled by code class
-			if (levelTransitionTimer >= levelTransitionTime) {
+                if (levelTransitionTimer >= levelTransitionTime)
+                {
 
-				currentLevel++;
-				if (currentLevel >= numberOfLevels) 
-				{
-					UnityEngine.SceneManagement.SceneManager.LoadScene (2);
-				}
-				else
-				{
-					nextLevel ();
-				}
-			} 
-			else 
-			{
-				transitionT += Time.deltaTime/levelTransitionTime;
-				mainCamera.transform.position = Vector3.Lerp(levelCameraPosition, cameraTarget, transitionT);
-				player.transform.position = Vector3.Lerp (levelExit, levelStart, transitionT);
-			}
-			break;
-		case State.INSTRUCTIONS:
-			if (Input.GetKeyDown (KeyCode.Escape)) 
-			{
-				switchInstructions ();
-				state = State.PLAYING;
-			}
-			break;
-		}
+                    currentLevel++;
+                    if (currentLevel >= numberOfLevels)
+                    {
+                        UnityEngine.SceneManagement.SceneManager.LoadScene(2);
+                    }
+                    else
+                    {
+                        nextLevel();
+                    }
+                }
+                else
+                {
+                    transitionT += Time.deltaTime / levelTransitionTime;
+                    mainCamera.transform.position = Vector3.Lerp(levelCameraPosition, cameraTarget, transitionT);
+                    player.transform.position = Vector3.Lerp(levelExit, levelStart, transitionT);
+                }
+                break;
+            case State.INSTRUCTIONS:
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    switchInstructions();
+                    state = State.PLAYING;
+                }
+                break;
+            case State.ERROR:
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+                    #else
+                    Application.Quit();
+                    #endif
+                }
+                break;
+        }
 	}
 
 	void nextLevel()
